@@ -1,0 +1,48 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Dropdown from "./ui/Dropdown";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { useState } from "react";
+
+export default function UserHeader() {
+    const [search, setSearch] = useState("");
+
+    return (
+        <div className="flex items-center justify-center ">
+            <div className="wrapper w-full">
+                <section className="users px-1 ">
+                    <header className="flex items-center justify-between">
+                        <div className="content flex items-center gap-2">
+                            <img
+                                src="/assets/images/img-1.jpeg"
+                                alt="Profile Pic"
+                                className="w-[50px] h-[50px] rounded-full ring-2 ring-offset-2 ring-gray-500 ring-offset-white"
+                            />
+                            <div className="details">
+                                <span className="text-white">Hamza Aamir</span>
+                                <p></p>
+                            </div>
+                        </div>
+                        <div>
+                            <Dropdown />
+                        </div>
+                    </header>
+
+                    <div className="search relative text-white w-full mt-3 rounded-md overflow-hidden">
+                        <input
+                            type="text"
+                            value={search}
+                            placeholder="Search or start a new chat"
+                            className="px-8 py-1.5 text-sm placeholder:text-white/50 w-full border-b border-b-white/50  outline-none rounded-md bg-white/10 hover:bg-white/20 focus:bg-black/40 transition ease-in"
+                            autoFocus
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                        <FontAwesomeIcon
+                            icon={faSearch}
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-xs"
+                        />
+                    </div>
+                </section>
+            </div>
+        </div>
+    );
+}

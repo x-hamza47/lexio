@@ -1,0 +1,139 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@300;400;500;600;700&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap'); */
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.jsx';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
+    /* --container:; */
+}
+
+@layer base {
+    /* *{
+        transition: all 1s ease !important;
+    } */
+
+       .chat-bx p{
+        font-family: "Inter", sans-serif !important;
+    }
+
+    body {
+        min-height: 100dvh;
+        background: #212121
+            url("https://images.unsplash.com/photo-1597839219216-a773cb2473e4?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fGRhcmslMjBiYWNrZ3JvdW5kfGVufDB8fDB8fHww")
+            no-repeat center / cover fixed;
+        font-family: "Poppins", sans-serif;
+        /* font-family: "Roboto", sans-serif; */
+    }
+    /* Scroll Bar */
+    :is(.users-list, .chat-bx)::-webkit-scrollbar {
+        margin: 10px;
+        width: 1px;
+    }
+    :is(.users-list, .chat-bx)::-webkit-scrollbar-track {
+        border-radius: 10px;
+        background: none;
+    }
+    :is(.users-list, .chat-bx)::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        background: #ffff;
+        /* box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5); */
+    }
+
+    .chat-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+            circle at center,
+            rgba(255, 255, 255, 0.15),
+            transparent
+        );
+        opacity: 0;
+        transition: opacity 0.3s ease-in;
+    }
+
+    .chat-card:hover::before {
+        opacity: 1;
+    }
+
+    .d-center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sharp-border {
+        position: relative;
+    }
+ 
+
+    .sharp-border::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 1px;
+        background: linear-gradient(
+            to right,
+            transparent,
+            rgba(255, 255, 255, 0.5),
+            transparent
+        );
+        transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .radial-gradient{
+         background: linear-gradient(
+            to right,
+            transparent,
+            rgba(255, 255, 255, 0.3),
+            transparent
+        );
+    }
+    .sharp-border:hover::after {
+        background: linear-gradient(
+            to right,
+            transparent,
+            rgba(255, 255, 255, 0.9),
+            transparent
+        );
+    }
+    .search::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: 3px;
+        width: 100%;
+        background: white;
+        transform: scaleX(0);
+        transform-origin: center;
+        transition: transform 0.5s ease-out;
+        border-radius: 60px;
+        z-index: 99;
+    }
+
+    .search:focus-within::after {
+        transform: scaleX(1);
+    }
+
+    .bg-glass {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2),
+            inset 0 2px 6px rgba(255, 255, 255, 0.15),
+            inset 0 -2px 6px rgba(0, 0, 0, 0.25);
+    }
+
+
+}
