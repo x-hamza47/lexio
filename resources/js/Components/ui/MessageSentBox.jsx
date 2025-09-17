@@ -60,29 +60,29 @@ export default function MessageSentBox() {
                                     showPicker
                                         ? {
                                               opacity: 1,
-                                              y: 0,
+                                              scale: 1,
                                               pointerEvents: "auto",
                                           }
                                         : {
                                               opacity: 0,
-                                              y: 250,
+                                              scale: 0.1,
                                               pointerEvents: "none",
                                           }
                                 }
                                 transition={{
-                                    y: {
+                                    scale: {
                                         type: "spring",
-                                        damping: 5,
+                                        damping: 7,
                                         mass: 0.4,
-                                        stiffness: 120,
-                                        bounce: 0.3,
+                                        stiffness: 80,
+                                        bounce: 1,
                                     },
                                     opacity: {
                                         duration: 0.3,
                                         ease: "easeInOut",
                                     },
                                 }}
-                                className="absolute bottom-15 left-0 -translate-x-56 w-96 z-50"
+                                className="absolute bottom-15 left-0 -translate-x-48 w-96 z-50 origin-bottom"
                             >
                                 <Picker
                                     data={emojiData}

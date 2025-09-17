@@ -3,5 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return inertia('Main');
+    return inertia('Auth/SignUp');
 });
+
+

@@ -27,7 +27,7 @@ export default function UserHeader() {
                         </div>
                     </header>
 
-                    <div className="search relative text-white w-full mt-3 rounded-md overflow-hidden">
+                    <div className="inp-bx text-white w-full mt-3 rounded-md">
                         <input
                             type="text"
                             value={search}

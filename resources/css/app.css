@@ -109,7 +109,11 @@
             transparent
         );
     }
-    .search::after {
+    .inp-bx{
+        overflow: hidden;
+        position: relative;
+    }
+    .inp-bx::after {
         content: "";
         position: absolute;
         left: 0;
@@ -124,7 +128,7 @@
         z-index: 99;
     }
 
-    .search:focus-within::after {
+    .inp-bx:focus-within::after {
         transform: scaleX(1);
     }
 
