@@ -1,37 +1,29 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Messages } from "../Data/messages";
-import { faPaperclip, faPaperPlane, faSearch } from "@fortawesome/free-solid-svg-icons";
-import { faFaceSmile } from "@fortawesome/free-regular-svg-icons";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import VerifyBadge from "@/Components/ui/VerifyBadge";
 import IncomingChat from "../Components/IncomingChat";
 import OutgoingChat from "../Components/OutgoingChat";
 import { motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import MessageSentBox from "../Components/ui/MessageSentBox";
+import useClickOutside from "../Components/hook/useClickOutside";
+
 
 export default function Chat() {
     const [open, setOpen] = useState(false);
     const detailDropDwn = useRef(null);
 
-    useEffect(() => {
-        function handleClickOutside(event) {
-            if (
-                detailDropDwn.current &&
-                !detailDropDwn.current.contains(event.target)
-            ) {
-                setOpen(false);
-            }
-        }
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
+    useClickOutside(detailDropDwn, () => setOpen(false));
 
     return (
-        <div className="flex-1 h-[85dvh] select-none">
+        <div className="flex-1 h-[88dvh] select-none">
             <div className="w-full h-full flex flex-col">
                 <section className="flex flex-col w-full h-full px-2 py-1 ">
-                    <header className="relative text-white flex items-center gap-4 sharp-border w-full border-b-amber-50 pb-1 radial-gradient mb-2" ref={detailDropDwn} >
+                    <header
+                        className="relative text-white flex items-center gap-4 sharp-border w-full border-b-amber-50 pb-1 radial-gradient mb-2"
+                        ref={detailDropDwn}
+                    >
                         <div className="w-12 h-12 rounded-full outline-[3px] outline-green-700 outline-offset-4 overflow-hidden">
                             <img
                                 src="/assets/images/img-3.jpeg"
@@ -39,12 +31,7 @@ export default function Chat() {
                                 className="w-full h-full"
                             />
                         </div>
-                        <span
-                            onClick={() => 
-                                setOpen(!open)
-                            }
-                            className="w-3/4"
-                        >
+                        <span onClick={() => setOpen(!open)} className="w-3/4">
                             <div className="flex items-center gap-2">
                                 <h3 className="text-md">Hamza Aamir</h3>
                                 <div className="relative w-4.5 h-4.5 ">
@@ -95,7 +82,7 @@ export default function Chat() {
                             </div>
                         </motion.div>
                         <div>
-                            <FontAwesomeIcon icon={faSearch}/> 
+                            <FontAwesomeIcon icon={faSearch} />
                         </div>
                     </header>
 
@@ -116,45 +103,8 @@ export default function Chat() {
                         <OutgoingChat />
                     </div>
 
-                    <form className=" mt-2">
-                        <div className="bg-white/10 rounded-full w-full flex items-center gap-1 h-11">
-                            <span className="flex gap-1 h-full">
-                                <button
-                                    className="text-xl h-full aspect-square p-1  rounded-full text-white bg-glass hover:bg-white/20 hover:shadow-xl active:scale-90 active:shadow-inner transition duration-200 ease-in-out cursor-pointer"
-                                    type="button"
-                                >
-                                    <FontAwesomeIcon
-                                        icon={faFaceSmile}
-                                        className="text-white"
-                                    />
-                                </button>
-                                <button
-                                    className="text-xl h-full aspect-square p-1 rounded-full text-white bg-glass hover:bg-white/20 hover:shadow-xl active:scale-90 active:shadow-inner transition duration-200 ease-in-out cursor-pointer"
-                                    type="button"
-                                >
-                                    <FontAwesomeIcon
-                                        icon={faPaperclip}
-                                        className="text-white"
-                                    />
-                                </button>
-                            </span>
-                            <input
-                                type="text"
-                                className=" w-full bg-transparent backdrop-blur-md shadow-md h-full outline-none text-white px-4 py-2 text-base rounded-full border-2 border-transparent focus:border-amber-50 transition-all"
-                                placeholder="Type a Message Here..."
-                                autoComplete="off"
-                            />
-                            <button
-                                className="text-xl h-full aspect-square  rounded-full text-white bg-glass hover:bg-white/20 hover:shadow-xl active:scale-90 active:shadow-inner transition duration-200 ease-in-out cursor-pointer"
-                                type="button"
-                            >
-                                <FontAwesomeIcon
-                                    icon={faPaperPlane}
-                                    className="rotate-45"
-                                />
-                            </button>
-                        </div>
-                    </form>
+                        <MessageSentBox/>
+                   
                 </section>
             </div>
         </div>

@@ -30,6 +30,8 @@
             url("https://images.unsplash.com/photo-1597839219216-a773cb2473e4?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fGRhcmslMjBiYWNrZ3JvdW5kfGVufDB8fDB8fHww")
             no-repeat center / cover fixed;
         font-family: "Poppins", sans-serif;
+         -webkit-font-smoothing: antialiased;
+         -moz-osx-font-smoothing: grayscale;
         /* font-family: "Roboto", sans-serif; */
     }
     /* Scroll Bar */
@@ -133,7 +135,31 @@
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2),
             inset 0 2px 6px rgba(255, 255, 255, 0.15),
             inset 0 -2px 6px rgba(0, 0, 0, 0.25);
+            background: rgba(75, 75, 75, 0.658);
+            /* background-color: rgb(173, 173, 173); */
     }
+
+
+    em-emoji-picker {
+  /* --background-rgb: 33, 33, 33; */
+  --border-radius: 24px;
+  --category-icon-size: 20px;
+  --color-border-over: rgba(255, 255, 255, 0.1);
+  --color-border: rgba(0, 0, 0, 0.05);
+  --font-family: "Poppins", sans-serif;
+  --font-size: 14px;
+  --rgb-accent: 255, 255, 255;
+  --rgb-background: 33, 33, 33; /* You may want to adjust to 0-255 */
+  --rgb-color: 173, 173, 173;
+  --rgb-input: 33, 33, 33;
+  --shadow: 5px 5px 15px -8px rgb(27, 27, 27);
+
+  height: 50vh;
+  min-height: 400px;
+  /* width: 400px; */
+  /* min-width:500px ; */
+  /* max-height: 800px; */
+}
 
 
 }

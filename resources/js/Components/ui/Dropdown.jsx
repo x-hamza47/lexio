@@ -6,8 +6,9 @@ import {
     faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import LiquidGlass from "liquid-glass-react";
+// import LiquidGlass from "liquid-glass-react";
 import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function Dropdown() {
     // ! Toggle State
@@ -41,51 +42,51 @@ export default function Dropdown() {
                 />
             </button>
 
-            {open && (
-                <div className="relative top-10 right-25 z-50">
-                    <LiquidGlass
-                        displacementScale={60}
-                        blurAmount={0.50}
-                        saturation={140}
-                        aberrationIntensity={50}
-                        elasticity={0.4}
-                        cornerRadius={16}
-                        padding="0px 0px"
-                        style={{
-                            position: "absolute",
-                            top: "50%",
-                            left: "50%",
+            <AnimatePresence>
+                {open && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.1 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.1 }}
+                        transition={{
+                            scale: {
+                                type: "spring",
+                                stiffness: 300,
+                                damping: 20,
+                            },
+                            opacity: {
+                                duration: 0.3,
+                                ease: "easeInOut",
+                            },
                         }}
-                        className="bg-white/10 rounded-2xl backdrop-blur-md "
+                        className="w-40 bg-glass rounded-2xl absolute top-0 right-10 z-50 origin-top-right"
                     >
-                        <div className="w-40 ">
-                            <ul className="px-2 py-1 text-sm text-white/60 ">
-                                <li className="px-2 py-3 hover:text-white transition ease-in sharp-border cursor-pointer flex items-center gap-2">
-                                    <FontAwesomeIcon
-                                        icon={faMessage}
-                                        className="w-4 h-4 mr-3"
-                                    />
-                                    New Chat
-                                </li>
-                                <li className="px-2 py-3 hover:text-white transition ease-in sharp-border cursor-pointer flex items-center gap-2 ">
-                                    <FontAwesomeIcon
-                                        icon={faGear}
-                                        className="w-4 h-4 mr-3"
-                                    />
-                                    Settings
-                                </li>
-                                <li className="px-2 py-3 hover:text-white transition ease-in sharp-border cursor-pointer flex items-center gap-2">
-                                    <FontAwesomeIcon
-                                        icon={faArrowRightFromBracket}
-                                        className="w-4 h-4 mr-3"
-                                    />
-                                    Logout
-                                </li>
-                            </ul>
-                        </div>
-                    </LiquidGlass>
-                </div>
-            )}
+                        <ul className="px-2 py-1 text-sm text-white/60 ">
+                            <li className="px-2 py-3 hover:text-white transition ease-in sharp-border cursor-pointer flex items-center gap-2">
+                                <FontAwesomeIcon
+                                    icon={faMessage}
+                                    className="w-4 h-4 mr-3"
+                                />
+                                New Chat
+                            </li>
+                            <li className="px-2 py-3 hover:text-white transition ease-in sharp-border cursor-pointer flex items-center gap-2 ">
+                                <FontAwesomeIcon
+                                    icon={faGear}
+                                    className="w-4 h-4 mr-3"
+                                />
+                                Settings
+                            </li>
+                            <li className="px-2 py-3 hover:text-white transition ease-in sharp-border cursor-pointer flex items-center gap-2">
+                                <FontAwesomeIcon
+                                    icon={faArrowRightFromBracket}
+                                    className="w-4 h-4 mr-3"
+                                />
+                                Logout
+                            </li>
+                        </ul>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
