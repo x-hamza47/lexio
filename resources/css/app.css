@@ -121,6 +121,7 @@
         height: 3px;
         width: 100%;
         background: white;
+        /* background: rgb(95, 26, 26); */
         transform: scaleX(0);
         transform-origin: center;
         transition: transform 0.5s ease-out;

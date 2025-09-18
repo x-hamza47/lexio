@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password', 255);
             $table->string('profile_pic', 255)->nullable();
             $table->boolean('is_verified')->default(false);
+            $table->boolean('is_premium')->default(false);
             $table->timestamps();
         });
     }
