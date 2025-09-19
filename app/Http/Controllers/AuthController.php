@@ -11,14 +11,14 @@ class AuthController extends Controller
 {
     public function registerPage()
     {
-        sleep(1);
+        // sleep(1);
 
         return inertia('Auth/SignUp');
     }
 
     public function register(RegisterRequest $request)
     {
-        sleep(1);
+        // sleep(1);
 
         $profilePic = null;
 
@@ -81,7 +81,7 @@ class AuthController extends Controller
 
     public function loginPage()
     {
-        sleep(1);
+        // sleep(1);
 
         return inertia('Auth/Login');
     }

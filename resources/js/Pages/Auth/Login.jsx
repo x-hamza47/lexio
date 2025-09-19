@@ -26,7 +26,7 @@ export default function Login() {
             <div className="text-white d-center py-9 h-dvh">
                 <div className="w-lg px-8 py-6 bg-black/5  backdrop-blur-md border border-white/20 shadow-lg rounded-2xl">
                     <h2 className="text-center text-2xl font-bold mb-5">
-                        Login Up
+                        Login 
                     </h2>
                     <form
                         onSubmit={handleSubmit}
@@ -110,7 +110,7 @@ export default function Login() {
                         <div className="w-full text-center text-sm">
                             <span>
                                 Don'nt have an account?
-                                <Link href="/register-page"> Sign in</Link>
+                                <Link href="/register-page" className="text-blue-500"> Create one</Link>
                             </span>
                         </div>
                     </form>

@@ -18,7 +18,7 @@ import axios from "axios";
 
 export default function SignUp() {
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors, clearErrors } = useForm({
         name: "",
         username: "",
         email: "",
