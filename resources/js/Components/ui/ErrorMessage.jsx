@@ -1,7 +1,7 @@
 
 export default function ErrorMessage({message = "error message"}) {
   return (
-      <span className="text-red-500 text-sm">
+      <span className="text-red-500 text-xs">
           <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 640 640"

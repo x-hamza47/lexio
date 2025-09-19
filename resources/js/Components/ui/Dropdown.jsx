@@ -8,6 +8,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Link } from "@inertiajs/react";
 
 export default function Dropdown() {
     // ! Toggle State
@@ -80,7 +81,8 @@ export default function Dropdown() {
                                     icon={faArrowRightFromBracket}
                                     className="w-4 h-4 mr-3"
                                 />
-                                Logout
+                                <Link href="/">Logout</Link>
+                                
                             </li>
                         </ul>
                     </motion.div>

@@ -2,45 +2,96 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Requests\RegisterRequest;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function registerPage(){
-        sleep(10);
+    public function registerPage()
+    {
+        sleep(1);
+
         return inertia('Auth/SignUp');
     }
 
-    public function register(RegisterRequest $request){
+    public function register(RegisterRequest $request)
+    {
         sleep(1);
-        return inertia('Main');
+
+        $profilePic = null;
+
+        if ($request->hasFile('profile_pic')) {
+            $file = $request->file('profile_pic');
+            $extension = $file->extension();
+
+            $filename = $request->username.'_'.time().'.'.$extension;
+
+            $profilePic = $file->storeAs('profile_pics', $filename, 'public');
+        }
+
+        User::create([
+            'name' => $request->name,
+            'username' => $request->username,
+            'email' => $request->email,
+            'password' => $request->password,
+            'profile_pic' => $profilePic,
+        ]);
+
+        return redirect()->route('login');
     }
 
+    public function login(Request $request)
+    {
 
-    public function checkUsername(Request $request){
+        $credentials = $request->validate([
+            'username' => ['required'], ['regex:/^[A-Za-z0-9_.-]+$/'],
+            'password' => ['required'], ['min:3'], ['max:14'],
+        ]);
+
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+
+            return redirect()->route('chit.chat');
+        }
+
+        return back()->withErrors(['username' => 'The provided credentials do not match our records.']);
+    }
+
+    public function checkUsername(Request $request)
+    {
         $username = trim($request->query('username', ''));
 
         if ($username === '') {
             return response()->json(['available' => null]);
         }
 
-        if (!preg_match('/^[A-Za-z0-9_.-]+$/', $username)) {
+        if (! preg_match('/^[A-Za-z0-9_.-]+$/', $username)) {
             return response()->json([
                 'available' => false,
-                'reason' => 'invalid_format'
+                'reason' => 'invalid_format',
             ]);
         }
 
         $exists = User::where('username', $username)->exists();
 
-        return response()->json(['available' => !$exists]);
-
+        return response()->json(['available' => ! $exists]);
     }
-    public function loginPage(){
-        sleep(10);
+
+    public function loginPage()
+    {
+        sleep(1);
+
         return inertia('Auth/Login');
     }
-}
 
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login');
+    }
+}

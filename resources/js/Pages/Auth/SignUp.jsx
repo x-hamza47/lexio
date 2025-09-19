@@ -1,4 +1,5 @@
 import {
+    faCheckCircle,
     faEnvelope,
     faEye,
     faEyeSlash,
@@ -6,38 +7,16 @@ import {
     faLockOpen,
     faPencil,
     faUserAlt,
+    faWarning,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ErrorMessage from "@/Components/ui/ErrorMessage";
 import { Link, useForm } from "@inertiajs/react";
 import debounce from "lodash.debounce";
+import axios from "axios";
 
 export default function SignUp() {
-    const [showPass, setShowPass] = useState(false);
-    const [showConfirmPass, setShowConfirmPass] = useState(false);
-    const [preview, setPreview] = useState(
-        "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"
-    );
-
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setData("profile_pic", file); 
-            const reader = new FileReader();
-            reader.onload = () => {
-                setPreview(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    // const checkUsernameExists = useCallback(
-    //     debounce(asyn (value) =>  {
-    //         if()
-    //     })
-    // )
-
 
     const { data, setData, post, processing, errors } = useForm({
         name: "",
@@ -47,6 +26,54 @@ export default function SignUp() {
         password_confirmation: "",
         profile_pic: "",
     });
+
+    const [usernameAvailable, setUsernameAvailable] = useState(null);
+    const [showPass, setShowPass] = useState(false);
+    const [showConfirmPass, setShowConfirmPass] = useState(false);
+    const [preview, setPreview] = useState(
+        "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"
+    );
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setData("profile_pic", file);
+            const reader = new FileReader();
+            reader.onload = () => {
+                setPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const checkUsernameAPI = useCallback(
+        debounce(async (value) => {
+            if (!value || value.trim() === "") {
+                setUsernameAvailable(null);
+                return;
+            }
+            const usernameToCheck = value;
+
+            try {
+                const res = await axios.get("/check-username", {
+                    params: { username: usernameToCheck },
+                });
+                if (usernameToCheck !== data.username) return;
+
+                setUsernameAvailable(res.data.available);
+            } catch (err) {
+                console.error("username check error:", err);
+            }
+        }, 450),
+        [data.username]
+    );
+
+    useEffect(() => {
+        checkUsernameAPI(data.username);
+        return () => {
+            checkUsernameAPI.cancel();
+        };
+    }, [data.username, checkUsernameAPI]);
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -125,7 +152,7 @@ export default function SignUp() {
                             </label>
                             <div className="inp-bx rounded-md h-11 mt-2 group">
                                 <FontAwesomeIcon
-                                    icon={faUserAlt}
+                                    icon={faUserAlt} 
                                     className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-white/50 group-focus-within:text-white transition ease-in"
                                 />
                                 <input
@@ -133,15 +160,31 @@ export default function SignUp() {
                                     placeholder="Enter your username"
                                     id="username"
                                     value={data.username}
-                                    onChange={(e) =>
-                                        setData("username", e.target.value)
-                                    }
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (/^[A-Za-z0-9_.-]*$/.test(value)) {
+                                            setData("username", value);
+                                            clearErrors("username");
+                                        }
+                                    }}
                                     autoComplete="off"
                                     className="h-full pl-9 pr-2 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
                                 />
                             </div>
-                            {errors.username && (
+                            {errors.username && !usernameAvailable && (
                                 <ErrorMessage message={errors.username} />
+                            )}
+
+                            {usernameAvailable === true && (
+                                <span className="text-xs text-green-400">
+                                    <FontAwesomeIcon icon={faCheckCircle} /> Username is available
+                                </span>
+                            )}
+
+                            {usernameAvailable === false && (
+                                <span className="text-xs text-red-400">
+                                    <FontAwesomeIcon icon={faWarning} /> Username already taken
+                                </span>
                             )}
                         </div>
                         {/* Email Address */}
@@ -245,7 +288,9 @@ export default function SignUp() {
                             <button
                                 type="submit"
                                 className="bg-glass w-full py-2 rounded-md hover:bg-black/20 bg-black hover:shadow-xl active:scale-90 active:shadow-inner transition duration-200 ease-in-out font-semibold"
-                                disabled={processing}
+                                disabled={
+                                    processing || usernameAvailable === false
+                                }
                             >
                                 Sign Up
                             </button>
@@ -255,7 +300,8 @@ export default function SignUp() {
 
                         <div className="w-full text-center text-sm">
                             <span>
-                                Already have an account? <Link href="/">Log in </Link>
+                                Already have an account?{" "}
+                                <Link href="/">Log in </Link>
                             </span>
                         </div>
                     </form>

@@ -48,9 +48,12 @@ export default function Login() {
                                     placeholder="Enter your username"
                                     id="username"
                                     value={data.username}
-                                    onChange={(e) =>
-                                        setData("username", e.target.value)
-                                    }
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (/^[A-Za-z0-9_.-]*$/.test(value)) {
+                                            setData("username", value);
+                                        }
+                                    }}
                                     autoComplete="off"
                                     className="h-full pl-9 pr-2 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
                                 />

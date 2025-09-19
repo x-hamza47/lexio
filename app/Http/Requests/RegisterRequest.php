@@ -23,7 +23,7 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:100',
-            'username' => 'required|string|max:50|unique:users',
+            'username' => 'required|string|regex:/^[A-Za-z0-9_.-]+$/|max:50|unique:users',
             'email' => 'required|string|email|max:150|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'profile_pic' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
