@@ -5,6 +5,13 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 
 export default defineConfig({
+    // server: {
+    //     host: true, 
+    //     port: 5173,
+    //     hmr: {
+    //         host: "192.168.1.100",
+    //     },
+    // },
     optimizeDeps: {
         include: ["@emoji-mart/react", "@emoji-mart/data"],
     },

@@ -12,12 +12,12 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useCallback, useEffect, useState } from "react";
 import ErrorMessage from "@/Components/ui/ErrorMessage";
-import { Link, useForm } from "@inertiajs/react";
+import { useForm } from "@inertiajs/react";
 import debounce from "lodash.debounce";
 import axios from "axios";
 
-export default function SignUp() {
 
+export default function SignUp({ onSwitch }) {
     const { data, setData, post, processing, errors, clearErrors } = useForm({
         name: "",
         username: "",
@@ -81,232 +81,226 @@ export default function SignUp() {
     }
 
     return (
-        <>
-            <div className="text-white d-center py-9">
-                <div className="w-lg px-8 py-6 bg-black/5  backdrop-blur-md border border-white/20 shadow-lg rounded-2xl">
-                    <h2 className="text-center text-2xl font-bold mb-5">
-                        Sign Up
-                    </h2>
-                    <form
-                        onSubmit={handleSubmit}
-                        encType="multipart/form-data"
-                        className="w-full flex flex-col items-center gap-4"
-                    >
-                        {/* Full Name */}
-                        <div className="profile-wrapper w-24 h-24 relative rounded-full bg-black/50 backdrop-blur-md shadow-md p-2 box-content border border-white/30">
-                            <img
-                                src={preview}
-                                id="preview"
-                                className="w-full h-full rounded-full"
-                                alt="Profile"
-                            />
-                            <label
-                                htmlFor="fileInput"
-                                className="absolute bg-glass -bottom-1 right-3 w-8 h-8 d-center cursor-pointer text-sm  rounded-full  hover:bg-black/60 bg-black hover:shadow-xl active:scale-90 active:shadow-inner transition duration-200 ease-in-out"
-                                title="Upload Pic"
-                            >
-                                <FontAwesomeIcon icon={faPencil} />
-                            </label>
-                        </div>
-                        <input
-                            type="file"
-                            id="fileInput"
-                            accept="image/*"
-                            name="image"
-                            className="hidden"
-                            onChange={handleFileChange}
+        <div className="text-white d-center py-9">
+            <div className="w-lg px-8 py-6 bg-black/5  backdrop-blur-md border border-white/20 shadow-lg rounded-2xl">
+                <h2 className="text-center text-2xl font-bold mb-5">Sign Up</h2>
+
+                <form
+                    onSubmit={handleSubmit}
+                    encType="multipart/form-data"
+                    className="w-full flex flex-col items-center gap-4"
+                >
+                    {/* Full Name */}
+                    <div className="profile-wrapper w-24 h-24 relative rounded-full bg-black/50 backdrop-blur-md shadow-md p-2 box-content border border-white/30">
+                        <img
+                            src={preview}
+                            id="preview"
+                            className="w-full h-full rounded-full"
+                            alt="Profile"
                         />
-                        <div className="w-full">
-                            <label htmlFor="name" className="text-sm">
-                                Full Name
-                            </label>
-                            <div
-                                className={`inp-bx rounded-md h-11 mt-2 group outline outline-amber-50/0 outline-offset-4 ${
-                                    errors.name ? "outline-red-500" : ""
-                                }`}
-                            >
-                                <FontAwesomeIcon
-                                    icon={faUserAlt}
-                                    className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-white/50 group-focus-within:text-white transition ease-in"
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="Enter your fullname"
-                                    id="name"
-                                    value={data.name}
-                                    onChange={(e) =>
-                                        setData("name", e.target.value)
-                                    }
-                                    autoComplete="off"
-                                    className="h-full pl-9 pr-2 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
-                                />
-                            </div>
-                            {errors.name && (
-                                <ErrorMessage message={errors.name} />
-                            )}
-                        </div>
-                        {/* Username */}
-                        <div className="w-full">
-                            <label htmlFor="username" className="text-sm">
-                                Username
-                            </label>
-                            <div className="inp-bx rounded-md h-11 mt-2 group">
-                                <FontAwesomeIcon
-                                    icon={faUserAlt} 
-                                    className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-white/50 group-focus-within:text-white transition ease-in"
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="Enter your username"
-                                    id="username"
-                                    value={data.username}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        if (/^[A-Za-z0-9_.-]*$/.test(value)) {
-                                            setData("username", value);
-                                            clearErrors("username");
-                                        }
-                                    }}
-                                    autoComplete="off"
-                                    className="h-full pl-9 pr-2 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
-                                />
-                            </div>
-                            {errors.username && !usernameAvailable && (
-                                <ErrorMessage message={errors.username} />
-                            )}
-
-                            {usernameAvailable === true && (
-                                <span className="text-xs text-green-400">
-                                    <FontAwesomeIcon icon={faCheckCircle} /> Username is available
-                                </span>
-                            )}
-
-                            {usernameAvailable === false && (
-                                <span className="text-xs text-red-400">
-                                    <FontAwesomeIcon icon={faWarning} /> Username already taken
-                                </span>
-                            )}
-                        </div>
-                        {/* Email Address */}
-                        <div className="w-full">
-                            <label htmlFor="email" className="text-sm">
-                                Email
-                            </label>
-                            <div className="inp-bx rounded-md h-11 mt-2 group">
-                                <FontAwesomeIcon
-                                    icon={faEnvelope}
-                                    className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-white/50 group-focus-within:text-white transition ease-in"
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="Enter your email"
-                                    id="email"
-                                    value={data.email}
-                                    onChange={(e) =>
-                                        setData("email", e.target.value)
-                                    }
-                                    autoComplete="off"
-                                    className="h-full pl-9 pr-2 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
-                                />
-                            </div>
-                            <span className="text-red-500 text-sm">
-                                {errors.email && (
-                                    <ErrorMessage message={errors.email} />
-                                )}
-                            </span>
-                        </div>
-
-                        {/* Password */}
-                        <div className="w-full">
-                            <label htmlFor="password" className="text-sm">
-                                Password
-                            </label>
-                            <div className="inp-bx rounded-md h-11 mt-2 group">
-                                <FontAwesomeIcon
-                                    icon={faLock}
-                                    className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-white/50 group-focus-within:text-white transition ease-in"
-                                />
-                                <input
-                                    type={showPass ? "password" : "text"}
-                                    placeholder="Enter your password"
-                                    id="password"
-                                    value={data.password}
-                                    onChange={(e) =>
-                                        setData("password", e.target.value)
-                                    }
-                                    autoComplete="off"
-                                    className="h-full px-9 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
-                                />
-                                <FontAwesomeIcon
-                                    icon={showPass ? faEye : faEyeSlash}
-                                    className="absolute text-whtie/70 top-1/2 right-4 text-sm -translate-y-1/2 cursor-pointer"
-                                    onClick={() => setShowPass(!showPass)}
-                                />
-                            </div>
-                            {errors.password && (
-                                <ErrorMessage message={errors.password} />
-                            )}
-                        </div>
-                        {/* Password */}
-                        <div className="w-full">
-                            <label
-                                htmlFor="confirm_password"
-                                className="text-sm"
-                            >
-                                Confirm Password
-                            </label>
-                            <div className="inp-bx rounded-md h-11 mt-2 group">
-                                <FontAwesomeIcon
-                                    icon={faLockOpen}
-                                    className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-white/50 group-focus-within:text-white transition ease-in"
-                                />
-                                <input
-                                    type={showConfirmPass ? "password" : "text"}
-                                    placeholder="confirm password"
-                                    id="confirm_password"
-                                    value={data.password_confirmation}
-                                    onChange={(e) =>
-                                        setData(
-                                            "password_confirmation",
-                                            e.target.value
-                                        )
-                                    }
-                                    autoComplete="off"
-                                    className="h-full px-9 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
-                                />
-                                <FontAwesomeIcon
-                                    icon={showConfirmPass ? faEye : faEyeSlash}
-                                    className="absolute text-whtie/70 top-1/2 right-4 text-sm -translate-y-1/2 cursor-pointer"
-                                    onClick={() =>
-                                        setShowConfirmPass(!showConfirmPass)
-                                    }
-                                />
-                            </div>
-                        </div>
-
-                        <div className="w-full mt-3">
-                            <button
-                                type="submit"
-                                className="bg-glass w-full py-2 rounded-md hover:bg-black/20 bg-black hover:shadow-xl active:scale-90 active:shadow-inner transition duration-200 ease-in-out font-semibold"
-                                disabled={
-                                    processing || usernameAvailable === false
+                        <label
+                            htmlFor="fileInput"
+                            className="absolute bg-glass -bottom-1 right-3 w-8 h-8 d-center cursor-pointer text-sm  rounded-full  hover:bg-black/60 bg-black hover:shadow-xl active:scale-90 active:shadow-inner transition duration-200 ease-in-out"
+                            title="Upload Pic"
+                        >
+                            <FontAwesomeIcon icon={faPencil} />
+                        </label>
+                    </div>
+                    <input
+                        type="file"
+                        id="fileInput"
+                        accept="image/*"
+                        name="image"
+                        className="hidden"
+                        onChange={handleFileChange}
+                    />
+                    <div className="w-full">
+                        <label htmlFor="name" className="text-sm">
+                            Full Name
+                        </label>
+                        <div className="inp-bx rounded-md h-11 mt-2 group ">
+                            <FontAwesomeIcon
+                                icon={faUserAlt}
+                                className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-white/50 group-focus-within:text-white transition ease-in"
+                            />
+                            <input
+                                type="text"
+                                placeholder="Enter your full name"
+                                id="name"
+                                value={data.name}
+                                onChange={(e) =>
+                                    setData("name", e.target.value)
                                 }
-                            >
-                                Sign Up
-                            </button>
+                                autoComplete="off"
+                                className="h-full pl-9 pr-2 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
+                            />
                         </div>
+                        {errors.name && <ErrorMessage message={errors.name} />}
+                    </div>
+                    {/* Username */}
+                    <div className="w-full">
+                        <label htmlFor="username" className="text-sm">
+                            Username
+                        </label>
+                        <div className="inp-bx rounded-md h-11 mt-2 group">
+                            <FontAwesomeIcon
+                                icon={faUserAlt}
+                                className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-white/50 group-focus-within:text-white transition ease-in"
+                            />
+                            <input
+                                type="text"
+                                placeholder="Choose a unique username"
+                                id="username"
+                                value={data.username}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    if (/^[A-Za-z0-9_.-]*$/.test(value)) {
+                                        setData("username", value);
+                                        clearErrors("username");
+                                    }
+                                }}
+                                autoComplete="off"
+                                className="h-full pl-9 pr-2 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
+                            />
+                        </div>
+                        {errors.username && !usernameAvailable && (
+                            <ErrorMessage message={errors.username} />
+                        )}
 
-                        <div className="my-4 h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700" />
-
-                        <div className="w-full text-center text-sm">
-                            <span>
-                                Already have an account?{" "}
-                                <Link href="/">Log in </Link>
+                        {usernameAvailable === true && (
+                            <span className="text-xs text-green-400">
+                                <FontAwesomeIcon icon={faCheckCircle} />{" "}
+                                Username is available
                             </span>
+                        )}
+
+                        {usernameAvailable === false && (
+                            <span className="text-xs text-amber-500">
+                                <FontAwesomeIcon icon={faWarning} /> Username
+                                already taken
+                            </span>
+                        )}
+                    </div>
+                    {/* Email Address */}
+                    <div className="w-full">
+                        <label htmlFor="email" className="text-sm">
+                            Email
+                        </label>
+                        <div className="inp-bx rounded-md h-11 mt-2 group">
+                            <FontAwesomeIcon
+                                icon={faEnvelope}
+                                className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-white/50 group-focus-within:text-white transition ease-in"
+                            />
+                            <input
+                                type="text"
+                                placeholder="Enter your email address"
+                                id="email"
+                                value={data.email}
+                                onChange={(e) =>
+                                    setData("email", e.target.value)
+                                }
+                                autoComplete="off"
+                                className="h-full pl-9 pr-2 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
+                            />
                         </div>
-                    </form>
-                </div>
+                        <span className="text-red-500 text-sm">
+                            {errors.email && (
+                                <ErrorMessage message={errors.email} />
+                            )}
+                        </span>
+                    </div>
+
+                    {/* Password */}
+                    <div className="w-full">
+                        <label htmlFor="password" className="text-sm">
+                            Password
+                        </label>
+                        <div className="inp-bx rounded-md h-11 mt-2 group">
+                            <FontAwesomeIcon
+                                icon={faLock}
+                                className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-white/50 group-focus-within:text-white transition ease-in"
+                            />
+                            <input
+                                type={showPass ? "text" : "password"}
+                                placeholder="Create a strong password"
+                                id="password"
+                                value={data.password}
+                                onChange={(e) =>
+                                    setData("password", e.target.value)
+                                }
+                                autoComplete="off"
+                                className="h-full px-9 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
+                            />
+                            <FontAwesomeIcon
+                                icon={showPass ? faEyeSlash : faEye}
+                                className="absolute text-whtie/70 top-1/2 right-4 text-sm -translate-y-1/2 cursor-pointer"
+                                onClick={() => setShowPass(!showPass)}
+                            />
+                        </div>
+                        {errors.password && (
+                            <ErrorMessage message={errors.password} />
+                        )}
+                    </div>
+                    {/* Password */}
+                    <div className="w-full">
+                        <label htmlFor="confirm_password" className="text-sm">
+                            Confirm Password
+                        </label>
+                        <div className="inp-bx rounded-md h-11 mt-2 group">
+                            <FontAwesomeIcon
+                                icon={faLockOpen}
+                                className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-white/50 group-focus-within:text-white transition ease-in"
+                            />
+                            <input
+                                type={showConfirmPass ? "text" : "password"}
+                                placeholder="Re-enter your password"
+                                id="confirm_password"
+                                value={data.password_confirmation}
+                                onChange={(e) =>
+                                    setData(
+                                        "password_confirmation",
+                                        e.target.value
+                                    )
+                                }
+                                autoComplete="off"
+                                className="h-full px-9 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
+                            />
+                            <FontAwesomeIcon
+                                icon={showConfirmPass ? faEyeSlash : faEye}
+                                className="absolute text-whtie/70 top-1/2 right-4 text-sm -translate-y-1/2 cursor-pointer"
+                                onClick={() =>
+                                    setShowConfirmPass(!showConfirmPass)
+                                }
+                            />
+                        </div>
+                    </div>
+
+                    <div className="w-full mt-3">
+                        <button
+                            type="submit"
+                            className="bg-glass w-full py-2 rounded-md hover:bg-black/70 bg-black hover:shadow-xl active:scale-90 active:shadow-inner transition duration-200 ease-in-out font-semibold cursor-pointer"
+                            disabled={processing || usernameAvailable === false}
+                        >
+                            Sign Up
+                        </button>
+                    </div>
+
+                    <div className="my-4 h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700" />
+
+                    <div className="w-full text-center text-sm">
+                        <span>
+                            Already have an account?
+                            <button
+                                type="button"
+                                onClick={onSwitch}
+                                className="text-blue-500 ml-1 cursor-pointer"
+                            >
+                                Log in
+                            </button>
+                        </span>
+                    </div>
+                </form>
             </div>
-        </>
+        </div>
     );
 }
