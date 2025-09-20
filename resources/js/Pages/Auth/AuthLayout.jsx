@@ -4,6 +4,8 @@ import { useState } from "react";
 import SignUp from "./SignUp";
 import Login from "./Login";
 import { motion } from "framer-motion";
+import { ShootingStars } from "@/Components/ui/shooting-stars";
+import { StarsBackground } from "@/Components/ui/stars-background";
 
 export default function AuthLayout() {
     const [mode, setMode] = useState("login");
@@ -13,6 +15,10 @@ export default function AuthLayout() {
 
     return (
         <div className="overflow-x-hidden">
+            <div>
+                <ShootingStars />
+                <StarsBackground className="bg-[#030303] -z-40" />
+            </div>
             <GlobeDemo />
             <AnimatePresence mode="wait">
                 {mode === "login" ? (
