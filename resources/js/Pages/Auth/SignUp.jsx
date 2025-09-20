@@ -15,7 +15,7 @@ import ErrorMessage from "@/Components/ui/ErrorMessage";
 import { useForm } from "@inertiajs/react";
 import debounce from "lodash.debounce";
 import axios from "axios";
-
+import { HoverBorderGradient } from "@/Components/ui/hover-border-gradient";
 
 export default function SignUp({ onSwitch }) {
     const { data, setData, post, processing, errors, clearErrors } = useForm({
@@ -33,6 +33,27 @@ export default function SignUp({ onSwitch }) {
     const [preview, setPreview] = useState(
         "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"
     );
+    const [confirmError, setConfirmError] = useState("");
+
+    
+    function handleSubmit(e) {
+        e.preventDefault();
+        post("/register");
+    }
+
+
+
+    const handleConfirmError = (e) => {
+        let value = e.target.value;
+
+        setData("password_confirmation", e.target.value);
+
+        if (data.password && value !== data.password) {
+            setConfirmError("Passwords do not match");
+        } else {
+            setConfirmError("");
+        }
+    };
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -74,11 +95,6 @@ export default function SignUp({ onSwitch }) {
             checkUsernameAPI.cancel();
         };
     }, [data.username, checkUsernameAPI]);
-
-    function handleSubmit(e) {
-        e.preventDefault();
-        post("/register");
-    }
 
     return (
         <div className="text-white d-center py-9">
@@ -209,7 +225,6 @@ export default function SignUp({ onSwitch }) {
                             )}
                         </span>
                     </div>
-
                     {/* Password */}
                     <div className="w-full">
                         <label htmlFor="password" className="text-sm">
@@ -256,12 +271,7 @@ export default function SignUp({ onSwitch }) {
                                 placeholder="Re-enter your password"
                                 id="confirm_password"
                                 value={data.password_confirmation}
-                                onChange={(e) =>
-                                    setData(
-                                        "password_confirmation",
-                                        e.target.value
-                                    )
-                                }
+                                onChange={handleConfirmError}
                                 autoComplete="off"
                                 className="h-full px-9 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
                             />
@@ -273,8 +283,10 @@ export default function SignUp({ onSwitch }) {
                                 }
                             />
                         </div>
+                        {confirmError && (
+                            <ErrorMessage message={confirmError} />
+                        )}
                     </div>
-
                     <div className="w-full mt-3">
                         <button
                             type="submit"
@@ -284,9 +296,6 @@ export default function SignUp({ onSwitch }) {
                             Sign Up
                         </button>
                     </div>
-
-                    <div className="my-4 h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700" />
-
                     <div className="w-full text-center text-sm">
                         <span>
                             Already have an account?
@@ -299,7 +308,21 @@ export default function SignUp({ onSwitch }) {
                             </button>
                         </span>
                     </div>
+                    <div className="my-2 h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700" />
+                    or
                 </form>
+                <HoverBorderGradient
+                    onClick={() => (window.location.href = "/auth/google")}
+                    className="flex items-center"
+                    containerClassName="w-full cursor-pointer bg-white/10 rounded-lg mt-3"
+                >
+                    <img
+                        src="https://img.icons8.com/color/512/google-logo.png"
+                        alt="Google logo"
+                        className="w-5 h-5 mr-2"
+                    />
+                    Sign up with Google
+                </HoverBorderGradient>
             </div>
         </div>
     );

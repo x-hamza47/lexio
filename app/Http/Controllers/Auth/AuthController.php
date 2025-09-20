@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Auth;
 
-use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\RegisterRequest;
 
 class AuthController extends Controller
 {
-
-    public function register(RegisterRequest $request)
+        public function register(RegisterRequest $request)
     {
         sleep(1);
 
@@ -76,6 +76,7 @@ class AuthController extends Controller
 
     public function loginPage()
     {
+        sleep(2);
         return inertia('Auth/AuthLayout');
     }
 

@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useForm } from "@inertiajs/react";
 import ErrorMessage from "@/Components/ui/ErrorMessage";
 import { useState } from "react";
-
+import { HoverBorderGradient } from "@/Components/ui/hover-border-gradient";
 
 export default function Login({ onSwitch }) {
     const [showPass, setShowPass] = useState(false);
@@ -63,9 +63,18 @@ export default function Login({ onSwitch }) {
 
                     {/* Password */}
                     <div className="w-full">
-                        <label htmlFor="password" className="text-sm">
-                            Password
-                        </label>
+                        <div className="flex justify-between items-center">
+                            <label htmlFor="password" className="text-sm">
+                                Password
+                            </label>
+                            <button
+                                type="button"
+                                className="text-xs text-blue-500 hover:underline cursor-pointer"
+                                // onClick={handleForgotPassword}
+                            >
+                                Forgot password?
+                            </button>
+                        </div>
                         <div className="inp-bx rounded-md h-11 mt-2 group">
                             <FontAwesomeIcon
                                 icon={faLock}
@@ -103,13 +112,11 @@ export default function Login({ onSwitch }) {
                         </button>
                     </div>
 
-                    <div className="my-4 h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700" />
-
                     <div className="w-full text-center text-sm">
                         <span>
-                            Don'nt have an account?
+                            Don't have an account?
                             <button
-                            type="button"
+                                type="button"
                                 onClick={onSwitch}
                                 className="text-blue-500 ml-1 cursor-pointer"
                             >
@@ -118,7 +125,20 @@ export default function Login({ onSwitch }) {
                             </button>
                         </span>
                     </div>
+                    <div className="mb-3 h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700" />
                 </form>
+                <HoverBorderGradient
+                    onClick={() => (window.location.href = "/auth/google")}
+                    className="flex items-center "
+                    containerClassName="w-full cursor-pointer bg-white/10 rounded-lg mt-4"
+                >
+                    <img
+                        src="https://img.icons8.com/color/512/google-logo.png"
+                        alt="Google logo"
+                        className="w-5 h-5 mr-2"
+                    />
+                    Continue with Google
+                </HoverBorderGradient>
             </div>
         </div>
     );
