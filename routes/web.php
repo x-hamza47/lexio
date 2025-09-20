@@ -9,6 +9,8 @@ Route::controller(AuthController::class)->group(function(){
     Route::post('/register', 'register')->name('signup'); 
     Route::get('/', 'loginPage')->name('login'); 
     Route::post('/login', 'login')->name('user.login'); 
+    // Route::get('/otp-verify', 'otpVerify')->name('otp.verify'); 
+    Route::get('/pass-recover', 'passRecover')->name('pass.recover'); 
     Route::get('/check-username', 'checkUsername')->name('check.username')->middleware('throttle:15,1');
     Route::post('/logout', 'logout')->name('user.logout');
 });

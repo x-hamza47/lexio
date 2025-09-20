@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Models\User;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\RegisterRequest;
+use App\Models\EmailOtp;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Session;
 
 class AuthController extends Controller
 {
-        public function register(RegisterRequest $request)
+    public function register(RegisterRequest $request)
     {
         sleep(1);
 
@@ -25,7 +29,7 @@ class AuthController extends Controller
             $profilePic = $file->storeAs('profile_pics', $filename, 'public');
         }
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'username' => $request->username,
             'email' => $request->email,
@@ -33,13 +37,28 @@ class AuthController extends Controller
             'profile_pic' => $profilePic,
         ]);
 
-        return redirect()->route('login');
+        // $otp = rand(100000, 999999);
+
+        // EmailOtp::create([
+        //     'user_id' => $user->id,
+        //     'otp_code' => $otp,
+        //     'expires_at' => Carbon::now()->addMinutes(2),
+        // ]);
+
+        // Session::put('otp_code', $otp);
+        // Session::put('otp_user', $user->id);
+
+        // Mail::
+
+
+        // return inertia('Auth/AuthLayout',[
+        //     'mode' => 'otp'
+        // ]);
+        // return redirect()->route('login');
     }
 
     public function login(Request $request)
     {
-        sleep(1);
-
         $credentials = $request->validate([
             'username' => ['required', 'regex:/^[A-Za-z0-9_.-]+$/'],
             'password' => ['required', 'min:3', 'max:14'],
@@ -76,8 +95,11 @@ class AuthController extends Controller
 
     public function loginPage()
     {
-        sleep(2);
-        return inertia('Auth/AuthLayout');
+        sleep(1);
+
+        return inertia('Auth/AuthLayout', [
+            'mode' => 'login',
+        ]);
     }
 
     public function logout(Request $request)
@@ -87,5 +109,16 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login');
+    }
+
+    // public function otpVerify(){
+    //     return inertia('Auth/AuthLayout',[
+    //         'mode' => 'otp'
+    //     ]);
+    // }
+    public function passRecover(){
+        return inertia('Auth/AuthLayout',[
+            'mode' => 'forgot_password'
+        ]);
     }
 }

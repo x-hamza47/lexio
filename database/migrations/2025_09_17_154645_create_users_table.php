@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name', 100);
             $table->string('username', 50)->unique();
             $table->string('email', 150);
+            $table->boolean('email_verified')->default(false);
             $table->string('password', 255);
             $table->string('profile_pic', 255)->nullable();
             $table->boolean('is_verified')->default(false);

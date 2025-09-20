@@ -17,7 +17,7 @@ import debounce from "lodash.debounce";
 import axios from "axios";
 import { HoverBorderGradient } from "@/Components/ui/hover-border-gradient";
 
-export default function SignUp({ onSwitch }) {
+export default function SignUp({ onSwitch, onOtp }) {
     const { data, setData, post, processing, errors, clearErrors } = useForm({
         name: "",
         username: "",
@@ -35,13 +35,15 @@ export default function SignUp({ onSwitch }) {
     );
     const [confirmError, setConfirmError] = useState("");
 
-    
     function handleSubmit(e) {
         e.preventDefault();
-        post("/register");
+        post("/register", {
+            preserveScroll: true,
+            onSuccess: () => {
+                onSwitch('otp');
+            }
+        });
     }
-
-
 
     const handleConfirmError = (e) => {
         let value = e.target.value;
@@ -97,9 +99,12 @@ export default function SignUp({ onSwitch }) {
     }, [data.username, checkUsernameAPI]);
 
     return (
-        <div className="text-white d-center py-9">
+        <div className="text-white d-center py-9 select-none">
             <div className="w-lg px-8 py-6 bg-black/5  backdrop-blur-md border border-white/20 shadow-lg rounded-2xl">
-                <h2 className="text-center text-2xl font-bold mb-5">Sign Up</h2>
+                <h2 className="text-center text-2xl font-bold mb-1">Sign Up</h2>
+                <p className="text-sm text-gray-400 text-center mb-3">
+                    No account? No worries, join us in seconds.
+                </p>
 
                 <form
                     onSubmit={handleSubmit}
@@ -111,7 +116,7 @@ export default function SignUp({ onSwitch }) {
                         <img
                             src={preview}
                             id="preview"
-                            className="w-full h-full rounded-full"
+                            className="w-full h-full rounded-full object-cover"
                             alt="Profile"
                         />
                         <label
@@ -293,7 +298,7 @@ export default function SignUp({ onSwitch }) {
                             className="bg-glass w-full py-2 rounded-md hover:bg-black/70 bg-black hover:shadow-xl active:scale-90 active:shadow-inner transition duration-200 ease-in-out font-semibold cursor-pointer"
                             disabled={processing || usernameAvailable === false}
                         >
-                            Sign Up
+                            Create account
                         </button>
                     </div>
                     <div className="w-full text-center text-sm">
@@ -301,14 +306,14 @@ export default function SignUp({ onSwitch }) {
                             Already have an account?
                             <button
                                 type="button"
-                                onClick={onSwitch}
+                                onClick={() => onSwitch('login')}
                                 className="text-blue-500 ml-1 cursor-pointer"
                             >
                                 Log in
                             </button>
                         </span>
                     </div>
-                    <div className="my-2 h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700" />
+                    <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700" />
                     or
                 </form>
                 <HoverBorderGradient

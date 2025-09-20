@@ -22,10 +22,18 @@ export default function Login({ onSwitch }) {
         post("/login");
     }
 
+    // function handleForgotPassword(){
+
+    // }
+
     return (
         <div className="text-white d-center py-9 h-dvh">
             <div className="w-lg px-8 py-6 bg-black/5  backdrop-blur-md border border-white/20 shadow-lg rounded-2xl">
-                <h2 className="text-center text-2xl font-bold mb-5">Login</h2>
+                <h2 className="text-center text-2xl font-bold mb-1">Login</h2>
+                <p className="text-sm text-gray-400 text-center mb-3">
+                    Log in, stay connected.
+                </p>
+
                 <form
                     onSubmit={handleSubmit}
                     encType="multipart/form-data"
@@ -70,7 +78,7 @@ export default function Login({ onSwitch }) {
                             <button
                                 type="button"
                                 className="text-xs text-blue-500 hover:underline cursor-pointer"
-                                // onClick={handleForgotPassword}
+                                onClick={() => onSwitch('forgot_password')}
                             >
                                 Forgot password?
                             </button>
@@ -117,7 +125,7 @@ export default function Login({ onSwitch }) {
                             Don't have an account?
                             <button
                                 type="button"
-                                onClick={onSwitch}
+                                onClick={() => onSwitch('signup')}
                                 className="text-blue-500 ml-1 cursor-pointer"
                             >
                                 {" "}
