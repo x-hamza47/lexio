@@ -2,22 +2,27 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Carbon\Carbon;
-use App\Models\User;
-use App\Models\EmailOtp;
-use App\Mail\SendOtpMail;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Crypt;
 use App\Http\Requests\RegisterRequest;
+use App\Mail\ResetPasswordMail;
+use App\Mail\SendOtpMail;
+use App\Models\EmailOtp;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class AuthController extends Controller
 {
     public function registerPage()
     {
-        return inertia('Auth/AuthLayout');
+        return inertia('Auth/AuthLayout', ['mode' => 'signup']);
     }
 
     public function register(RegisterRequest $request)
@@ -45,9 +50,10 @@ class AuthController extends Controller
 
         $this->sendOtp($user);
 
-        // return inertia('Auth/AuthLayout', [
-        //     'mode' => 'otp',
-        // ]);
+        return inertia('Auth/AuthLayout', [
+            'mode' => 'otp',
+            'email' => $request->email,
+        ]);
     }
 
     public function resendOtp()
@@ -77,6 +83,33 @@ class AuthController extends Controller
         ]);
     }
 
+    private function sendOtp(User $user)
+    {
+        $record = EmailOtp::where('user_id', $user->id)->latest()->first();
+
+        if ($record && $record->updated_at->diffInSeconds(now()) < 120) {
+            throw new \Exception('Please wait before requesting another OTP.');
+        }
+
+        $otp = rand(100000, 999999);
+        $encryptedOtp = Crypt::encryptString($otp);
+        $otp_expires_at = Carbon::now()->addMinutes(2);
+
+        session([
+            'otp_code' => $otp,
+            'otp_user' => $user->id,
+            'otp_expires_at' => $otp_expires_at,
+        ]);
+
+        EmailOtp::updateOrCreate(
+            ['user_id' => $user->id],
+            ['otp_code' => $encryptedOtp, 'expires_at' => $otp_expires_at]
+        );
+
+        Mail::to($user->email)->queue(new SendOtpMail($otp));
+    }
+
+    // ! Login
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -86,6 +119,18 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+
+            $user = Auth::user();
+
+            if (! $user->email_verified) {
+                Auth::logout();
+                $this->sendOtp($user);
+
+                return Inertia::render('Auth/AuthLayout', [
+                    'mode' => 'otp',
+                    'email' => $user->email,
+                ]);
+            }
 
             return redirect()->route('chit.chat');
         }
@@ -113,9 +158,9 @@ class AuthController extends Controller
         return response()->json(['available' => ! $exists]);
     }
 
+    // ! Show Login Page
     public function loginPage()
     {
-        sleep(1);
 
         return inertia('Auth/AuthLayout', [
             'mode' => 'login',
@@ -128,33 +173,54 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login'); 
+        return redirect()->route('login');
     }
 
-    public function passRecover()
+    // ! Forgot password
+    public function forgotPassword(Request $request)
     {
-        return inertia('Auth/AuthLayout', [
-            'mode' => 'forgot_password',
-        ]);
-    }
-
-    private function sendOtp(User $user)
-    {
-        $otp = rand(100000, 999999);
-        $encryptedOtp = Crypt::encryptString($otp); 
-        $otp_expires_at = Carbon::now()->addMinutes(2);
-
-        session([
-            'otp_code' => $otp,
-            'otp_user' => $user->id,
-            'otp_expires_at' => $otp_expires_at,
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
         ]);
 
-        EmailOtp::updateOrCreate(
-            ['user_id' => $user->id],
-            ['otp_code' => $encryptedOtp, 'expires_at' => $otp_expires_at]
+        $token = Str::random(64);
+
+        DB::table('password_resets')->updateOrInsert(
+            ['email' => $request->email],
+            ['token' => $token, 'created_at' => now()]
         );
 
-        Mail::to($user->email)->send(new SendOtpMail($otp));
+        $resetLink = url("/reset-password/{$token}?email={$request->email}");
+
+        Mail::to($request->email)->queue(new ResetPasswordMail($resetLink));
+
+        return redirect()->route('login')->with('success', 'We have emailed your password reset link!');
+    }
+
+    // ! Reset Password
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+            'token' => 'required',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $record = DB::table('password_resets')
+            ->where('email', $request->email)
+            ->where('token', $request->token)
+            ->first();
+
+        if (! $record) {
+            return back()->withErrors(['email' => 'Invalid or expired token.']);
+        }
+
+        User::where('email', $request->email)->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        DB::table('password_resets')->where('email', $request->email)->delete();
+
+        return redirect()->route('login')->with('success', 'Your password has been reset successfully!');
     }
 }

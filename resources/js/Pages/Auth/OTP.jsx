@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useRef, useState, useEffect } from "react";
 
-export default function OTP({ onSwitch }) {
+export default function OTP({ onSwitch, email }) {
     const length = 6;
     const [otp, setOtp] = useState(new Array(length).fill(""));
     const [errors, setErrors] = useState({});
@@ -45,7 +45,7 @@ export default function OTP({ onSwitch }) {
                 setErrors({ otp_success: res.data.message });
                 setTimeout(() => {
                     onSwitch("login");
-                }, 1500);
+                }, 2500);
             } else {
                 setErrors({ otp_code: res.data.message });
             }
@@ -92,6 +92,10 @@ export default function OTP({ onSwitch }) {
                 <h2 className="text-center text-2xl font-bold mb-1">
                     Enter OTP
                 </h2>
+                <p className="text-center text-gray-400 text-sm mb-4">
+                    We’ve sent a 6-digit code to{" "}
+                    <span className="text-white font-medium">{email}</span>
+                </p>
                 <div className="flex gap-2 justify-center my-6">
                     {otp.map((digit, index) => (
                         <input
@@ -121,24 +125,22 @@ export default function OTP({ onSwitch }) {
                         Go ahead and log in.
                     </p>
                 )}
-                {/* <button
-                    type="button"
-                    // onClick={() => verifyOtp()}
-                    disabled={loading}
-                    className="bg-glass w-full py-2 rounded-md hover:bg-black/70 bg-black hover:shadow-xl active:scale-90 active:shadow-inner transition duration-200 ease-in-out font-semibold cursor-pointer"
-                >
-                    Verify Code
-                </button> */}
                 <p className="mt-4 text-gray-400 text-sm text-center">
                     Didn’t get the code?{" "}
                     <button
+                        onClick={handleResend}
                         className={`text-blue-400 underline cursor-pointer ${
                             resendDisabled
                                 ? "opacity-50 cursor-not-allowed"
                                 : ""
                         }`}
+                        disabled={resendDisabled}
                     >
-                        {resendDisabled ? `Resend in ${counter}s` : "Resend"}
+                        {resendDisabled
+                            ? `Resend in ${new Date(counter * 1000)
+                                  .toISOString()
+                                  .substr(14, 5)}`
+                            : "Resend"}
                     </button>
                 </p>
             </div>

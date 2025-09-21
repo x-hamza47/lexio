@@ -24,7 +24,14 @@ class RegisterRequest extends FormRequest
         return [
             'name' => 'required|string|max:100',
             'username' => 'required|string|regex:/^[A-Za-z0-9_.-]+$/|max:50|unique:users',
-            'email' => 'required|string|email|max:150|unique:users',
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:150',
+                'unique:users',
+                'regex:/^[A-Za-z0-9._%+-]+@gmail\.com$/i',
+            ],
             'password' => 'required|string|min:8|confirmed',
             'profile_pic' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ];
@@ -39,6 +46,7 @@ class RegisterRequest extends FormRequest
             'email.required' => 'We need your email to register.',
             'email.email' => 'Please provide a valid email address.',
             'email.unique' => 'This email is already registered.',
+            'email.regex' => 'Only Gmail addresses are allowed for registration.',
             'password.required' => 'You must set a password.',
             'password.min' => 'Password must be at least :min characters.',
             'password.confirmed' => 'Passwords do not match.',
@@ -58,6 +66,4 @@ class RegisterRequest extends FormRequest
             'profile_pic' => 'profile picture',
         ];
     }
-
-
 }

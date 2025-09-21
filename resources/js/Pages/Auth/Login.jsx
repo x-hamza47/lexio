@@ -36,7 +36,6 @@ export default function Login({ onSwitch }) {
 
                 <form
                     onSubmit={handleSubmit}
-                    encType="multipart/form-data"
                     className="w-full flex flex-col items-center gap-4"
                 >
                     {/* Username */}

@@ -17,7 +17,7 @@ import debounce from "lodash.debounce";
 import axios from "axios";
 import { HoverBorderGradient } from "@/Components/ui/hover-border-gradient";
 
-export default function SignUp({ onSwitch, onOtp }) {
+export default function SignUp({ onSwitch }) {
     const { data, setData, post, processing, errors, clearErrors } = useForm({
         name: "",
         username: "",
@@ -39,9 +39,9 @@ export default function SignUp({ onSwitch, onOtp }) {
         e.preventDefault();
         post("/register", {
             preserveScroll: true,
-            onSuccess: () => {
-                onSwitch('otp');
-            }
+            // onSuccess: () => {
+            //     onSwitch('otp');
+            // }
         });
     }
 
