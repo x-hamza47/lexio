@@ -57,7 +57,7 @@ export default function AuthLayout({ mode: initialMode = "login" }) {
                         exit={{ opacity: 0, scale: 0.2 }}
                         transition={{ duration: 0.4 }}
                     >
-                       <OTP/>
+                       <OTP onSwitch={switchMode}/>
                     </motion.div>
                 )}
                 {mode === "forgot_password" && (

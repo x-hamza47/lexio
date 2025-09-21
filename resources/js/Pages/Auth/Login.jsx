@@ -27,7 +27,7 @@ export default function Login({ onSwitch }) {
     // }
 
     return (
-        <div className="text-white d-center py-9 h-dvh">
+        <div className="text-white d-center py-9 h-dvh select-none">
             <div className="w-lg px-8 py-6 bg-black/5  backdrop-blur-md border border-white/20 shadow-lg rounded-2xl">
                 <h2 className="text-center text-2xl font-bold mb-1">Login</h2>
                 <p className="text-sm text-gray-400 text-center mb-3">
@@ -60,6 +60,7 @@ export default function Login({ onSwitch }) {
                                         setData("username", value);
                                     }
                                 }}
+                                tabIndex={1}
                                 autoComplete="off"
                                 className="h-full pl-9 pr-2 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
                             />
@@ -97,6 +98,7 @@ export default function Login({ onSwitch }) {
                                     setData("password", e.target.value)
                                 }
                                 autoComplete="off"
+                                tabIndex={2}
                                 className="h-full px-9 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
                             />
                             <FontAwesomeIcon

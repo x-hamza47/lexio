@@ -8,13 +8,33 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Link } from "@inertiajs/react";
+// import { Link } from "@inertiajs/react";
+
+import { router } from "@inertiajs/react";
+
 
 export default function Dropdown() {
+    
+    const [loading, setLoading] = useState(false);
+
+    const handleLogout = () => {
+        setLoading(true);
+        router.post(
+            "/logout",
+            {},
+            {
+                onSuccess: () => {
+                    router.replace("/"); 
+                },
+            }
+        );
+    };
+
+
     // ! Toggle State
     const [open, setOpen] = useState(false);
     const dropdownRef = useRef(null);
-
+       
     useEffect(() => {
         function handleClickOutside(event) {
             if (
@@ -77,12 +97,21 @@ export default function Dropdown() {
                                 Settings
                             </li>
                             <li className="px-2 py-3 hover:text-white transition ease-in sharp-border cursor-pointer flex items-center gap-2">
-                                <FontAwesomeIcon
-                                    icon={faArrowRightFromBracket}
-                                    className="w-4 h-4 mr-3"
-                                />
-                                <Link href="/">Logout</Link>
-                                
+                                <button
+                                    onClick={handleLogout}
+                                    disabled={loading}
+                                    className="flex items-center gap-5 disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer"
+                                >
+                                    {loading ? (
+                                        <span className="animate-spin border-2 border-white/50 border-t-transparent rounded-full w-4 h-4"></span>
+                                    ) : (
+                                        <FontAwesomeIcon
+                                            icon={faArrowRightFromBracket}
+                                            className="w-4 h-4"
+                                        />
+                                    )}
+                                    {loading ? "Logging out..." : "Logout"}
+                                </button>
                             </li>
                         </ul>
                     </motion.div>

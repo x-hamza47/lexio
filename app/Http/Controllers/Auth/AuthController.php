@@ -2,18 +2,24 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\RegisterRequest;
-use App\Models\EmailOtp;
-use App\Models\User;
 use Carbon\Carbon;
+use App\Models\User;
+use App\Models\EmailOtp;
+use App\Mail\SendOtpMail;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Crypt;
+use App\Http\Requests\RegisterRequest;
 
 class AuthController extends Controller
 {
+    public function registerPage()
+    {
+        return inertia('Auth/AuthLayout');
+    }
+
     public function register(RegisterRequest $request)
     {
         sleep(1);
@@ -37,24 +43,38 @@ class AuthController extends Controller
             'profile_pic' => $profilePic,
         ]);
 
-        // $otp = rand(100000, 999999);
+        $this->sendOtp($user);
 
-        // EmailOtp::create([
-        //     'user_id' => $user->id,
-        //     'otp_code' => $otp,
-        //     'expires_at' => Carbon::now()->addMinutes(2),
+        // return inertia('Auth/AuthLayout', [
+        //     'mode' => 'otp',
         // ]);
+    }
 
-        // Session::put('otp_code', $otp);
-        // Session::put('otp_user', $user->id);
+    public function resendOtp()
+    {
+        $userId = session('otp_user');
 
-        // Mail::
+        if (! $userId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No user found for OTP.',
+            ]);
+        }
 
+        $user = User::find($userId);
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.',
+            ]);
+        }
 
-        // return inertia('Auth/AuthLayout',[
-        //     'mode' => 'otp'
-        // ]);
-        // return redirect()->route('login');
+        $this->sendOtp($user);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'OTP resent successfully.',
+        ]);
     }
 
     public function login(Request $request)
@@ -108,17 +128,33 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+        return redirect()->route('login'); 
     }
 
-    // public function otpVerify(){
-    //     return inertia('Auth/AuthLayout',[
-    //         'mode' => 'otp'
-    //     ]);
-    // }
-    public function passRecover(){
-        return inertia('Auth/AuthLayout',[
-            'mode' => 'forgot_password'
+    public function passRecover()
+    {
+        return inertia('Auth/AuthLayout', [
+            'mode' => 'forgot_password',
         ]);
+    }
+
+    private function sendOtp(User $user)
+    {
+        $otp = rand(100000, 999999);
+        $encryptedOtp = Crypt::encryptString($otp); 
+        $otp_expires_at = Carbon::now()->addMinutes(2);
+
+        session([
+            'otp_code' => $otp,
+            'otp_user' => $user->id,
+            'otp_expires_at' => $otp_expires_at,
+        ]);
+
+        EmailOtp::updateOrCreate(
+            ['user_id' => $user->id],
+            ['otp_code' => $encryptedOtp, 'expires_at' => $otp_expires_at]
+        );
+
+        Mail::to($user->email)->send(new SendOtpMail($otp));
     }
 }

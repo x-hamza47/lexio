@@ -3,7 +3,10 @@ import Chat from "./Chat";
 import { ShootingStars } from "@/Components/ui/shooting-stars";
 import { StarsBackground } from "@/Components/ui/stars-background";
 
+
 export default function Main() {
+
+
     return (
         <>
             <div>

@@ -7,7 +7,7 @@ const World = lazy(
                 import("@/Components/ui/Globe").then((module) =>
                     resolve({ default: module.World })
                 );
-            }, 500);
+            }, 1000);
         })
 );
 
