@@ -100,7 +100,7 @@ export default function Dropdown() {
                                 <button
                                     onClick={handleLogout}
                                     disabled={loading}
-                                    className="flex items-center gap-5 disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer"
+                                    className="flex items-center gap-5 disabled:opacity-50 disabled:cursor-progress w-full cursor-pointer"
                                 >
                                     {loading ? (
                                         <span className="animate-spin border-2 border-white/50 border-t-transparent rounded-full w-4 h-4"></span>

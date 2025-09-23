@@ -31,15 +31,17 @@ class GoogleController extends Controller
                     $user->update([
                         'google_id' => $googleUser->getId(),
                         'profile_pic' => $googleUser->getAvatar(),
+                        'email_verified' => true,
                     ]);
                 }
             }
             if (! $user) {
                 $user = User::create([
-                    'google_id' => $googleUser->id,
+                    'google_id' => $googleUser->getId(),
                     'name' => $googleUser->getName(),
                     'email' => $googleUser->getEmail(),
                     'username' => $this->generateUniqueUsername($googleUser->getName()),
+                    'email_verified' => true,
                     'password' => bcrypt(Str::random(16)),
                     'profile_pic' => $googleUser->getAvatar(),
                 ]);

@@ -33,7 +33,7 @@ export default function Chat() {
                         </div>
                         <span onClick={() => setOpen(!open)} className="w-3/4">
                             <div className="flex items-center gap-2">
-                                <h3 className="text-md">Hamza Aamir</h3>
+                                <h3 className="text-md ">Hamza Aamir</h3>
                                 <div className="relative w-4.5 h-4.5 ">
                                     <VerifyBadge />
                                 </div>

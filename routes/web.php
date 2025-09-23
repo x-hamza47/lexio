@@ -1,8 +1,9 @@
 <?php
 
+use Illuminate\Http\Request;
 use App\Http\Middleware\ValidUser;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\Auth\OtpController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\GoogleController;
@@ -37,3 +38,7 @@ Route::get('/auth/google/callback', [GoogleController::class, 'googleAuthenticat
 Route::get('/chit-chat', function () {
     return inertia('Main');
 })->name('chit.chat')->middleware(ValidUser::class);
+Route::get('/add-friends-data', [UserController::class, 'addFriendPage'])->name('users.index')->middleware(ValidUser::class);
+
+
+// ! FRIENDS ROUTEs

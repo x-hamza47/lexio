@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@300;400;500;600;700&display=swap");
 /* @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap'); */
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -20,13 +20,13 @@
         transition: all 1s ease !important;
     } */
 
-       .chat-bx p{
+    .chat-bx p {
         font-family: "Inter", sans-serif !important;
     }
-    *{
+    * {
         scroll-behavior: smooth;
     }
-    
+
     body {
         min-height: 100dvh;
         /* background: #212121
@@ -52,7 +52,7 @@
         background: #ffff;
         /* box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5); */
     }
-    
+
     .chat-card::before {
         content: "";
         position: absolute;
@@ -61,26 +61,25 @@
             circle at center,
             rgba(255, 255, 255, 0.15),
             transparent
-            );
-            opacity: 0;
-            transition: opacity 0.3s ease-in;
-        }
-        
-        .chat-card:hover::before {
-            opacity: 1;
-        }
-        
-        .d-center {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .sharp-border {
+        );
+        opacity: 0;
+        transition: opacity 0.3s ease-in;
+    }
+
+    .chat-card:hover::before {
+        opacity: 1;
+    }
+
+    .d-center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sharp-border {
         /* color: #ffd000; */
         position: relative;
     }
- 
 
     .sharp-border::after {
         content: "";
@@ -98,8 +97,8 @@
         transition: background 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .radial-gradient{
-         background: linear-gradient(
+    .radial-gradient {
+        background: linear-gradient(
             to right,
             transparent,
             rgba(255, 255, 255, 0.3),
@@ -114,7 +113,7 @@
             transparent
         );
     }
-    .inp-bx{
+    .inp-bx {
         overflow: hidden;
         position: relative;
     }
@@ -145,31 +144,60 @@
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2),
             inset 0 2px 6px rgba(255, 255, 255, 0.15),
             inset 0 -2px 6px rgba(0, 0, 0, 0.25);
-            background: rgba(75, 75, 75, 0.658);
-            /* background-color: rgb(173, 173, 173); */
+        background: rgba(75, 75, 75, 0.658);
+        /* background-color: rgb(173, 173, 173); */
     }
 
+    .premium-badge {
+        box-shadow: 0 0 20px -1px rgba(218, 165, 32, 0.5);
+        overflow: hidden;
+    }
+    .premium-badge::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -50%;
+        width: 20px;
+        height: 100%;
+        /* background: rgba(255, 255, 255, 0.205); */
+        z-index: 9999;
+        background: linear-gradient(
+            to right,
+            transparent,
+            rgba(255, 255, 255, 0.5),
+            transparent
+        );
+        transform: skewX(-30deg);
+        animation: shine var(--shine-duration, 2s) infinite;
+        animation-delay: var(--shine-delay, 0s);
+    }
 
+    @keyframes shine {
+        0% {
+            left: -150%;
+        }
+        100% {
+            left: 150%;
+        }
+    }
     em-emoji-picker {
-  /* --background-rgb: 33, 33, 33; */
-  --border-radius: 24px;
-  --category-icon-size: 20px;
-  --color-border-over: rgba(255, 255, 255, 0.1);
-  --color-border: rgba(0, 0, 0, 0.05);
-  --font-family: "Poppins", sans-serif;
-  --font-size: 14px;
-  --rgb-accent: 255, 255, 255;
-  --rgb-background: 33, 33, 33; /* You may want to adjust to 0-255 */
-  --rgb-color: 173, 173, 173;
-  --rgb-input: 33, 33, 33;
-  --shadow: 5px 5px 15px -8px rgb(27, 27, 27);
+        /* --background-rgb: 33, 33, 33; */
+        --border-radius: 24px;
+        --category-icon-size: 20px;
+        --color-border-over: rgba(255, 255, 255, 0.1);
+        --color-border: rgba(0, 0, 0, 0.05);
+        --font-family: "Poppins", sans-serif;
+        --font-size: 14px;
+        --rgb-accent: 255, 255, 255;
+        --rgb-background: 33, 33, 33; /* You may want to adjust to 0-255 */
+        --rgb-color: 173, 173, 173;
+        --rgb-input: 33, 33, 33;
+        --shadow: 5px 5px 15px -8px rgb(27, 27, 27);
 
-  height: 50vh;
-  min-height: 400px;
-  /* width: 400px; */
-  /* min-width:500px ; */
-  /* max-height: 800px; */
-}
-
-
+        height: 50vh;
+        min-height: 400px;
+        /* width: 400px; */
+        /* min-width:500px ; */
+        /* max-height: 800px; */
+    }
 }

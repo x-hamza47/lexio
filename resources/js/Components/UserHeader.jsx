@@ -1,9 +1,9 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Dropdown from "./ui/Dropdown";
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 
-export default function UserHeader() {
+export default function UserHeader({activeTab, onFetch, onTabChange}) {
     const [search, setSearch] = useState("");
 
     return (
@@ -22,12 +22,28 @@ export default function UserHeader() {
                                 <p></p>
                             </div>
                         </div>
-                        <div>
+                        <div className="flex gap-2">
+                            <button
+                                className={`d-center w-8 h-8 rounded-full text-white bg-glass hover:bg-white/20 transition duration-200 ease-in-out ${
+                                    activeTab === "addFriends"
+                                        ? "ring-2 ring-white"
+                                        : ""
+                                }`}
+                                onClick={() => {
+                                    onFetch();
+                                    onTabChange("addFriends");
+                                }}
+                            >
+                                <FontAwesomeIcon
+                                    icon={faUserPlus}
+                                    className="text-sm p-2 rounded-full"
+                                />
+                            </button>
                             <Dropdown />
                         </div>
                     </header>
 
-                    <div className="inp-bx text-white w-full mt-3 rounded-md">
+                    <div className="inp-bx text-white w-full mt-5 rounded-md">
                         <input
                             type="text"
                             value={search}
