@@ -7,6 +7,7 @@ export default function PendingRequests({ data, type, requestId }) {
     const randomDuration = `${1.5 + Math.random() * 2}s`;
 
     return (
+        
         <div className="select-none">
             <div className="chat-card relative flex items-center justify-between sharp-border py-3 pl-2 pr-4 mt-1 cursor-pointer ">
                 <span className="flex gap-4 select-none">
