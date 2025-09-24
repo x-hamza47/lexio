@@ -26,13 +26,13 @@ export default function SuggestedUser({ data, type }) {
                                     ? data.name.slice(0, 20) + "..."
                                     : data.name}
                             </span>
-                            {data.is_verified ? (
+                            {data.is_verified && (
                                 <div className="relative w-4 h-4">
                                     <VerifyBadge />
                                 </div>
-                            ) : null}
+                            )}
 
-                            {data.is_premium ? (
+                            {data.is_premium && (
                                 <span
                                     className={`premium-badge relative d-center p-0.5 w-5 h-5 bg-glass rounded-full`}
                                     style={{
@@ -49,7 +49,7 @@ export default function SuggestedUser({ data, type }) {
                                         }`}
                                     />
                                 </span>
-                            ) : null}
+                            )}
                         </div>
                         <p className="text-xs font-normal text-gray-400">
                             {data.username}

@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('profile_pic', 255)->nullable();
             $table->boolean('is_verified')->default(false);
             $table->boolean('is_premium')->default(false);
+            $table->boolean('is_online')->default(false);
             $table->timestamps();
         });
     }
