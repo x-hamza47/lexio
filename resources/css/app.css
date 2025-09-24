@@ -149,6 +149,7 @@
     }
 
     .premium-badge {
+        /* box-shadow: 0 0 20px -1px rgba(218, 32, 32, 0.5); */
         box-shadow: 0 0 20px -1px rgba(218, 165, 32, 0.5);
         overflow: hidden;
     }
@@ -178,6 +179,7 @@
         }
         100% {
             left: 150%;
+            color: #611fca;
         }
     }
     em-emoji-picker {

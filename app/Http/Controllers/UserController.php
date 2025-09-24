@@ -20,9 +20,10 @@ class UserController extends Controller
         $excludeIds = array_merge([$user->id], $friendIds, $pendingIds);
 
         $suggestedUsers = User::whereNotIn('id', $excludeIds)
-            ->select('id', 'name', 'username', 'is_verified', 'is_premium', 'profile_pic')
             ->where('email_verified', true)
-            ->get();
+            ->select('id', 'name', 'username', 'is_verified', 'is_premium', 'profile_pic')
+            ->orderBy('id')
+            ->cursorPaginate(10);
 
         return response()->json([
             'pendingRequests' => $pendingRequests,

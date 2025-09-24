@@ -62,18 +62,18 @@ class User extends Authenticatable
         return $this->hasMany(FriendRequest::class, 'to_user_id');
     }
 
-    public function friendsOne()
+    public function friendsOfMine()
     {
-        return $this->hasMany(Friend::class, 'user_one_id');
+        return $this->hasMany(Friend::class, 'user_id');
     }
 
-    public function friendsTwo()
+    public function friendsOf()
     {
-        return $this->hasMany(Friend::class, 'user_two_id');
+        return $this->hasMany(Friend::class, 'friend_id');
     }
 
     public function friends()
     {
-        return $this->friendsOne->merge($this->friendsTwo);
+        return $this->friendsOfMine->merge($this->friendsOf);
     }
 }

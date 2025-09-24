@@ -2,30 +2,84 @@ import UserHeader from "@/Components/UserHeader";
 import Chats from "@/Components/Chats";
 import { users } from "@/Data/users";
 import PendingRequests from "@/Components/PendingRequests";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import SuggestedUser from "@/Components/SuggestedUser";
+import Loader from "@/Components/ui/Loader";
+import  {LoadingMessages } from "@/Data/LoadingMessages"
 
 export default function Users({ activeTab, onTabChange }) {
-
+    const [loadingMessage, setLoadingMessage] = useState("");
     const [pendingRequests, setPendingRequests] = useState([]);
+
     const [suggestedUsers, setSuggestedUsers] = useState([]);
+    const [nextCursor, setNextCursor] = useState(null);
+    const [loadingMore, setLoadingMore] = useState(true);
+    const [loadedOnce, setLoadedOnce] = useState(false);
+
+    const loaderRef = useRef(null);
+
+    useEffect(() => {
+        if (!loaderRef.current || !nextCursor) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const first = entries[0];
+                if (first.isIntersecting && nextCursor && !loadingMore) {
+                    fetchUsersData(nextCursor);
+                }
+            },
+            { threshold: 1 }
+        );
+
+        observer.observe(loaderRef.current);
+
+        return () => {
+            if (loaderRef.current) observer.unobserve(loaderRef.current);
+        };
+    }, [nextCursor, loadingMore]);
 
 
     useEffect(() => {
-        if (activeTab === "addFriends") {
+        if (activeTab === "addFriends" && !loadedOnce) {
+            setLoadedOnce(true);
             fetchUsersData();
         }
-    }, [activeTab]);
+    }, [activeTab, loadedOnce]);
 
-    const fetchUsersData = async () => {
+    const fetchUsersData = async (cursor = null) => {
         try {
-            const res = await axios.get("/add-friends-data");
-            setPendingRequests(res.data.pendingRequests);
-            setSuggestedUsers(res.data.suggestedUsers);
+            setLoadingMore(true);
+            let url = "/add-friends-data";
+            if (cursor) {
+                url += `?cursor=${cursor}`;
+            }
+            const res = await axios.get(url);
+
+            if (res.data.pendingRequests) {
+                setPendingRequests(res.data.pendingRequests);
+            }
+
+            if (res.data.suggestedUsers) {
+                setSuggestedUsers((prev) => [
+                    ...prev,
+                    ...res.data.suggestedUsers.data,
+                ]);
+                setNextCursor(res.data.suggestedUsers.next_cursor);
+
+                if (!res.data.suggestedUsers.next_cursor) {
+                    const randomIndex = Math.floor(
+                        Math.random() * LoadingMessages.length
+                    );
+                    setLoadingMessage(LoadingMessages[randomIndex]);
+                }
+            }
         } catch (err) {
             console.error(err);
+        } finally {
+            setLoadingMore(false);
         }
-   };
+    };
     return (
         <div className="max-h-[88dvh] flex flex-col">
             <UserHeader
@@ -64,12 +118,24 @@ export default function Users({ activeTab, onTabChange }) {
                             </h3>
                             {suggestedUsers.length > 0 &&
                                 suggestedUsers.map((user) => (
-                                    <PendingRequests
+                                    <SuggestedUser
                                         key={user.id}
                                         data={user}
                                         type="suggested"
                                     />
                                 ))}
+                            <div
+                                ref={loaderRef}
+                                className="h-8 flex items-center justify-center text-gray-400 text-xs my-2"
+                            >
+                                {loadingMore ? (
+                                    <Loader size={6}  />
+                                ) : nextCursor ? (
+                                    "Scroll to load more"
+                                ) : (
+                                    loadingMessage
+                                )}
+                            </div>
                         </div>
                     </>
                 )}

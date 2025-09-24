@@ -2,9 +2,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Dropdown from "./ui/Dropdown";
 import { faSearch, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
+import { usePage } from "@inertiajs/react";
 
 export default function UserHeader({activeTab, onFetch, onTabChange}) {
     const [search, setSearch] = useState("");
+    const {auth} = usePage().props;
 
     return (
         <div className="flex items-center justify-center ">
@@ -13,12 +15,17 @@ export default function UserHeader({activeTab, onFetch, onTabChange}) {
                     <header className="flex items-center justify-between">
                         <div className="content flex items-center gap-2">
                             <img
-                                src="/assets/images/img-1.jpeg"
+                                src={
+                                    auth.user.profile_pic ??
+                                    "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"
+                                }
                                 alt="Profile Pic"
                                 className="w-[50px] h-[50px] rounded-full ring-2 ring-offset-2 ring-gray-500 ring-offset-white"
                             />
                             <div className="details">
-                                <span className="text-white">Hamza Aamir</span>
+                                <span className="text-white">
+                                    {auth.user.name}
+                                </span>
                                 <p></p>
                             </div>
                         </div>

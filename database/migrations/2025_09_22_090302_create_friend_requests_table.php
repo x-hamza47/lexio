@@ -22,12 +22,12 @@ return new class extends Migration
 
         Schema::create('friends', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_one_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('user_two_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('friend_id')->constrained('users')->onDelete('cascade');
             $table->dateTime('since')->useCurrent();
             $table->foreignId('blocked_by')->nullable()->constrained('users')->onDelete('set null');
             $table->dateTime('last_interaction')->nullable();
-            $table->unique(['user_one_id', 'user_two_id']);
+            $table->unique(['user_id', 'friend_id']);
             $table->timestamps();
         });
     }
