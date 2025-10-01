@@ -37,7 +37,7 @@ export default function UserHeader({activeTab, onFetch, onTabChange}) {
                                         : ""
                                 }`}
                                 onClick={() => {
-                                    onFetch();
+                                    // onFetch();
                                     onTabChange("addFriends");
                                 }}
                             >

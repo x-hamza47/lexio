@@ -68,7 +68,7 @@ export default function SignUp({ onSwitch }) {
             reader.readAsDataURL(file);
         }
     };
-
+    // ! debounced username check
     const checkUsernameAPI = useCallback(
         debounce(async (value) => {
             if (!value || value.trim() === "") {

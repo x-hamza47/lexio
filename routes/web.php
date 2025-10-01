@@ -1,13 +1,14 @@
 <?php
 
-use Illuminate\Http\Request;
-use App\Http\Middleware\ValidUser;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\Auth\OtpController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Auth\OtpController;
+use App\Http\Controllers\UserController;
+use App\Http\Middleware\ValidUser;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
+// INFO: AUTHENTICATION CONTROLLER ROUTES
 Route::controller(AuthController::class)->group(function () {
     Route::get('/register', 'registerPage')->name('register.show');
     Route::post('/register', 'register')->name('signup');
@@ -17,8 +18,8 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('/pass-recover', 'passRecover')->name('pass.recover');
     Route::get('/check-username', 'checkUsername')->name('check.username')->middleware('throttle:15,1');
     Route::post('/logout', 'logout')->name('user.logout');
-    Route::post('/resend-otp',  'resendOtp')->name('resend.otp');
-    Route::post('/forgot-password',  'forgotPassword')->name('password.email');
+    Route::post('/resend-otp', 'resendOtp')->name('resend.otp');
+    Route::post('/forgot-password', 'forgotPassword')->name('password.email');
 
 });
 
@@ -38,7 +39,13 @@ Route::get('/auth/google/callback', [GoogleController::class, 'googleAuthenticat
 Route::get('/chit-chat', function () {
     return inertia('Main');
 })->name('chit.chat')->middleware(ValidUser::class);
-Route::get('/add-friends-data', [UserController::class, 'addFriendPage'])->name('users.index')->middleware(ValidUser::class);
 
+Route::middleware(ValidUser::class)->group(function () {
+    Route::controller(UserController::class)->group(function () {
+        Route::get('/pending-requests', 'getPendingRequests')->name('pending.requests');
+        Route::get('/suggested-users', 'getSuggestedUsers')->name('suggested.users');
+        Route::post('/friend-request/{receiver}', 'sendRequest');
+    });
+});
 
 // ! FRIENDS ROUTEs

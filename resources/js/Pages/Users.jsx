@@ -6,19 +6,78 @@ import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import SuggestedUser from "@/Components/SuggestedUser";
 import Loader from "@/Components/ui/Loader";
-import  {LoadingMessages } from "@/Data/LoadingMessages"
+import { LoadingMessages } from "@/Data/LoadingMessages";
+import { AnimatePresence, motion } from "framer-motion";
+import { usePage } from "@inertiajs/react";
 
 export default function Users({ activeTab, onTabChange }) {
+    const { auth } = usePage().props;
     const [loadingMessage, setLoadingMessage] = useState("");
+    const [loadingMore, setLoadingMore] = useState(true);
+    const [loadedOnce, setLoadedOnce] = useState(false);
+    const loaderRef = useRef(null);
+
     const [pendingRequests, setPendingRequests] = useState([]);
 
     const [suggestedUsers, setSuggestedUsers] = useState([]);
     const [nextCursor, setNextCursor] = useState(null);
-    const [loadingMore, setLoadingMore] = useState(true);
-    const [loadedOnce, setLoadedOnce] = useState(false);
 
-    const loaderRef = useRef(null);
+    // ! Web Socket for Pending Requests
+    useEffect(() => {
+        if (!auth?.user?.id || !window.Echo) {
+            console.warn("WebSocket not initialized or user not authenticated");
+            return;
+        }
 
+        const channelName = `friend-requests.${auth.user.id}`;
+        const channel = window.Echo.private(channelName);
+
+        channel.listen(".FriendRequestSent", (e) => {
+            if (e.sender && e.sender.id) {
+                setPendingRequests((prev) => {
+                    if (prev.some((req) => req.sender.id === e.sender.id)) {
+                        console.log(
+                            "Duplicate request ignored for sender:",
+                            e.sender.id
+                        );
+                        return prev;
+                    }
+                    return [{ id: `ws-${e.sender.id}`, sender: e.sender }, ...prev];
+                });
+
+                setSuggestedUsers((prev) => {
+                    return prev.filter((user) => user.id !== e.sender.id);
+                });
+
+            } else {
+                console.error("Invalid friend request payload:", e);
+            }
+        });
+
+        channel.error((err) => {
+            console.error("WebSocket error on channel", channelName, err);
+        });
+
+        channel.subscribed(() => {
+            console.log("Successfully subscribed to", channelName);
+        });
+
+        return () => {
+            console.log("Cleaning up WebSocket listener for", channelName);
+            window.Echo.leave(channelName);
+        };
+    }, [auth?.user?.id]);
+
+    // ! Initial Fetch when ActiveTab is Add Friends
+    useEffect(() => {
+        if (activeTab === "addFriends" && !loadedOnce) {
+            setLoadedOnce(true);
+            fetchPendingRequests();
+            fetchSuggestedUsers();
+        }
+    }, [activeTab, loadedOnce]);
+
+    // hack: Infinite Scroll for Suggested Users
     useEffect(() => {
         if (!loaderRef.current || !nextCursor) return;
 
@@ -26,7 +85,7 @@ export default function Users({ activeTab, onTabChange }) {
             (entries) => {
                 const first = entries[0];
                 if (first.isIntersecting && nextCursor && !loadingMore) {
-                    fetchUsersData(nextCursor);
+                    fetchSuggestedUsers(nextCursor);
                 }
             },
             { threshold: 1 }
@@ -39,35 +98,44 @@ export default function Users({ activeTab, onTabChange }) {
         };
     }, [nextCursor, loadingMore]);
 
+    // ! Fetch Pending Request API
+    const fetchPendingRequests = async () => {
+        try {
+            const res = await axios.get('/pending-requests');
 
-    useEffect(() => {
-        if (activeTab === "addFriends" && !loadedOnce) {
-            setLoadedOnce(true);
-            fetchUsersData();
+            if (res.data.pendingRequests) {
+                setPendingRequests((prev) => {
+                    const prevIds = new Set(prev.map((r) => r.id.toString()));
+                    const newRequests = res.data.pendingRequests.filter((req) => !prevIds.has(req.id.toString()));
+
+                    return [...newRequests, ...prev];
+                });
+            }
+        } catch (err) {
+            console.error("Failed to load pending requests", err);
         }
-    }, [activeTab, loadedOnce]);
-
-    const fetchUsersData = async (cursor = null) => {
+    }
+    // ! Fetch Suggested Users API
+    const fetchSuggestedUsers = async (cursor = null) => {
         try {
             setLoadingMore(true);
-            let url = "/add-friends-data";
+            let url = "/suggested-users";
             if (cursor) {
                 url += `?cursor=${cursor}`;
             }
             const res = await axios.get(url);
 
-            if (res.data.pendingRequests) {
-                setPendingRequests(res.data.pendingRequests);
-            }
-
             if (res.data.suggestedUsers) {
-                setSuggestedUsers((prev) => [
-                    ...prev,
-                    ...res.data.suggestedUsers.data,
-                ]);
+                setSuggestedUsers((prev) => {
+                    const all = [
+                        ...prev,
+                        ...res.data.suggestedUsers.data,
+                    ];
+                    return Array.from(new Map(all.map(u => [u.id, u])).values());
+                });
                 setNextCursor(res.data.suggestedUsers.next_cursor);
 
-                if (!res.data.suggestedUsers.next_cursor) {
+                if (!res.data.suggestedUsers.nextCursor) {
                     const randomIndex = Math.floor(
                         Math.random() * LoadingMessages.length
                     );
@@ -75,11 +143,11 @@ export default function Users({ activeTab, onTabChange }) {
                 }
             }
         } catch (err) {
-            console.error(err);
+            console.error("Failed to load suggested users", err);
         } finally {
             setLoadingMore(false);
         }
-    };
+    }
     return (
         <div className="max-h-[88dvh] flex flex-col">
             <UserHeader
@@ -96,40 +164,87 @@ export default function Users({ activeTab, onTabChange }) {
                             <h3 className="text-white font-semibold font-sans px-2 ">
                                 Friend Requests
                             </h3>
-                            {pendingRequests.length > 0 ? (
-                                pendingRequests.map((req) => (
-                                    <PendingRequests
-                                        key={req.id}
-                                        data={req.sender}
-                                        type="pending"
-                                        requestId={req.id}
-                                    />
-                                ))
-                            ) : (
-                                <div className="text-gray-500 text-xs text-center px-2">
-                                    No requests found.
-                                </div>
-                            )}
+                            <AnimatePresence>
+                                {pendingRequests.length > 0 ? (
+                                    pendingRequests.map((req) => (
+                                        <motion.div
+                                            key={req.id}
+                                            initial={{ opacity: 0, scale: 0.1 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.1 }}
+                                            transition={{
+                                                scale: {
+                                                    type: "spring",
+                                                    stiffness: 100,
+                                                    damping: 10,
+                                                    mass: 0.2,
+                                                    bounce: 0.2,
+                                                },
+                                                opacity: {
+                                                    duration: 0.3,
+                                                    ease: "easeInOut",
+                                                },
+                                            }}
+                                        >
+                                            <PendingRequests
+                                                data={req.sender}
+                                                type="pending"
+                                                requestId={req.id}
+                                            />
+                                        </motion.div>
+                                    ))
+                                ) : (
+                                    <>
+                                        <div className="text-gray-500 text-xs text-center px-2">
+                                            No requests found.
+                                        </div>
+                                        <div className="mb-3 h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700 mt-4" />
+                                    </>
+                                )}
+                            </AnimatePresence>
                         </div>
-                        <div className="mb-3 h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700" />
                         <div>
                             <h3 className="text-white font-semibold font-sans px-2 mb-2">
                                 Suggested Friends
                             </h3>
-                            {suggestedUsers.length > 0 &&
-                                suggestedUsers.map((user) => (
-                                    <SuggestedUser
-                                        key={user.id}
-                                        data={user}
-                                        type="suggested"
-                                    />
-                                ))}
+                            <AnimatePresence>
+                                {suggestedUsers.length > 0 &&
+                                    suggestedUsers.map((user) => (
+                                        <motion.div
+                                            key={user.id}
+                                            initial={{ opacity: 0, scale: 0.1 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.1 }}
+                                            transition={{
+                                                scale: {
+                                                    type: "spring",
+                                                    stiffness: 100,
+                                                    damping: 10,
+                                                    mass: 0.2,
+                                                    bounce: 0.2,
+                                                },
+                                                opacity: {
+                                                    duration: 0.3,
+                                                    ease: "easeInOut",
+                                                },
+                                            }}
+                                        >
+                                            <SuggestedUser
+                                                data={user}
+                                                type="suggested"
+                                                onRequestSent={(id) => {
+                                                    setSuggestedUsers((prev) => prev.filter((u) => u.id !== id));
+                                                }}
+                                            />
+                                        </motion.div>
+                                    ))}
+                            </AnimatePresence>
                             <div
                                 ref={loaderRef}
                                 className="h-8 flex items-center justify-center text-gray-400 text-xs my-2"
                             >
                                 {loadingMore ? (
-                                    <Loader size={6}  />
+                                    <Loader size={25} />
                                 ) : nextCursor ? (
                                     "Scroll to load more"
                                 ) : (

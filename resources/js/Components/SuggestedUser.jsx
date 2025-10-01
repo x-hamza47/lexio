@@ -1,12 +1,29 @@
 import VerifyBadge from "@/Components/ui/VerifyBadge";
 import { faCrown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import axios from "axios";
+import { useState } from "react";
 
-export default function SuggestedUser({ data, type }) {
-    const randomDelay = `${Math.random() * 5}s`; 
+export default function SuggestedUser({ data, type, onRequestSent }) {
+    const randomDelay = `${Math.random() * 5}s`;
     const randomDuration = `${1.5 + Math.random() * 2}s`;
-   
 
+    const [requested, setRequested] = useState(false);
+
+    // ! Send Request API
+    const handleSendRequest = async () => {
+        if (requested) return;
+        try {
+            setRequested(true);
+            const res = await axios.post(`/friend-request/${data.id}`);
+            console.log("API response:", res.data);
+        } catch (err) {
+            console.error("Error sending friend request:", err);
+            if (err.response?.status === 400 && onRequestSent) {
+                onRequestSent(data.id);
+            }
+        }
+    };
     return (
         <div className="select-none">
             <div className=" relative flex items-center justify-between sharp-border py-3 pl-2 pr-4 mt-1 cursor-pointer ">
@@ -42,11 +59,10 @@ export default function SuggestedUser({ data, type }) {
                                 >
                                     <FontAwesomeIcon
                                         icon={faCrown}
-                                        className={`relative z-10  text-xs ${
-                                            data.username == "hamza-aamir"
-                                                ? "text-red-800"
-                                                : "text-yellow-400"
-                                        }`}
+                                        className={`relative z-10  text-xs ${data.username == "hamza-aamir"
+                                            ? "text-red-800"
+                                            : "text-yellow-400"
+                                            }`}
                                     />
                                 </span>
                             )}
@@ -56,9 +72,21 @@ export default function SuggestedUser({ data, type }) {
                         </p>
                     </div>
                 </span>
-                <button className="text-xs bg-glass h-7 text-nowrap px-2 font-sans font-semibold text-white rounded-md  hover:bg-white/20 hover:shadow-xl active:scale-90 active:shadow-inner transition duration-200 ease-in-out cursor-pointer ">
-                    Send request
-                </button>
+                {requested ? (
+                    <button
+                        disabled
+                        className="text-xs bg-black/20 h-7 px-2 font-semibold text-white/40 rounded-md cursor-default"
+                    >
+                        Requested
+                    </button>
+                ) : (
+                    <button
+                        onClick={handleSendRequest}
+                        className="text-xs bg-glass h-7 text-nowrap px-2 font-sans font-semibold text-white rounded-full hover:bg-white/20 hover:shadow-xl active:scale-90 active:shadow-inner transition duration-200 ease-in-out cursor-pointer"
+                    >
+                        Send request
+                    </button>
+                )}
             </div>
         </div>
     );

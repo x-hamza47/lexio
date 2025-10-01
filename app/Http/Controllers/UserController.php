@@ -2,22 +2,50 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\FriendRequestSent;
+use App\Models\FriendRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    public function addFriendPage()
+    public function getPendingRequests()
     {
         $user = Auth::user();
 
-        $pendingRequests = $user->receivedFriendRequests()->with('sender:id, name, username, is_verified, is_premium, profile_pic')->get();
+        $pendingRequests = $user->receivedFriendRequests()
+            ->whereHas('sender')
+            ->with('sender:id,name,username,is_verified,is_premium,profile_pic')
+            ->get()
+            ->map(function ($request) {
+                return [
+                    'id' => $request->id,
+                    'sender' => $request->sender,
+                ];
+            });
 
-        $friendIds = $user->friends()->pluck('id')->toArray();
+        $pendingSentIds = $user->sentFriendRequests()->pluck('to_user_id')->all();
 
-        $pendingIds = $user->sentFriendRequests()->pluck('to_user_id')->toArray();
+        return response()->json([
+            'pendingRequests' => $pendingRequests,
+            'pendingSentIds' => $pendingSentIds,
+        ]);
+    }
 
-        $excludeIds = array_merge([$user->id], $friendIds, $pendingIds);
+    public function getSuggestedUsers()
+    {
+        $user = Auth::user();
+
+        $friendIds = $user->friends()->pluck('id')->all();
+        $pendingSentIds = $user->sentFriendRequests()->pluck('to_user_id')->all();
+        $pendingReceivedIds = $user->receivedFriendRequests()->pluck('from_user_id')->all();
+
+        $excludeIds = array_merge(
+            [$user->id],
+            $friendIds,
+            $pendingSentIds,
+            $pendingReceivedIds
+        );
 
         $suggestedUsers = User::whereNotIn('id', $excludeIds)
             ->where('email_verified', true)
@@ -26,8 +54,41 @@ class UserController extends Controller
             ->cursorPaginate(10);
 
         return response()->json([
-            'pendingRequests' => $pendingRequests,
             'suggestedUsers' => $suggestedUsers,
+            'pendingSentIds' => $pendingSentIds,
+            'pendingReceivedIds' => $pendingReceivedIds, 
+        ]);
+    }
+
+    public function sendRequest(User $receiver)
+    {
+        $sender = Auth::user();
+
+        if ($sender->id === $receiver->id) {
+            return response()->json(['message' => 'Cannot send friend request to yourself!'], 400);
+        }
+
+        $exists = FriendRequest::where(function ($q) use ($sender, $receiver) {
+            $q->where('from_user_id', $sender->id)->where('to_user_id', $receiver->id);
+
+        })->orWhere(function ($q) use ($sender, $receiver) {
+            $q->where('from_user_id', $receiver->id)->where('to_user_id', $sender->id);
+        })->exists();
+        if ($exists) {
+            return response()->json(['message' => 'Request already sent!'], 400);
+        }
+
+        $friendRequest = $sender->sentFriendRequests()->create([
+            'to_user_id' => $receiver->id,
+
+        ]);
+
+        broadcast(new FriendRequestSent($sender, $receiver))->toOthers();
+
+        return response()->json([
+            'message' => 'Friend request sent!',
+            'receiver' => $receiver->id,
+            'request_id' => $friendRequest->id,
         ]);
     }
 }

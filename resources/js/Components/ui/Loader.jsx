@@ -1,12 +1,23 @@
 export default function Loader({
-    size = 5,
-    color = "gray-300",
-    borderTop = "white",
-    className,
+    size = 24,
+    color = "border-gray-500",
+    background = "border-gray-200",
+    className = "",
 }) {
     return (
         <div
-            className={`w-${size} h-${size} border-2 border-${color} border-t-${borderTop} rounded-full animate-spin ${className}`}
-        ></div>
+            className={`relative inline-block ${className}`}
+            style={{ width: size, height: size }}
+        >
+            {/* Background circle */}
+            <div
+                className={`absolute inset-0 rounded-full border-2 ${background}`}
+            ></div>
+
+            {/* Spinning arc */}
+            <div
+                className={`absolute inset-0 rounded-full border-2 ${color} border-t-transparent animate-spin`}
+            ></div>
+        </div>
     );
 }
