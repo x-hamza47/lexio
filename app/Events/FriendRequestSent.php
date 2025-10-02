@@ -15,17 +15,20 @@ class FriendRequestSent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $sender;
-
+    public $friendRequestId;
     public $receiver;
 
-    public function __construct(User $sender, User $receiver)
+    public function __construct(User $sender, User $receiver, $friendRequestId)
     {
         $this->sender = $sender;
         $this->receiver = $receiver;
-        // Log::info("FriendRequestSent event constructed", [
-        //     'sender_id' => $sender->id,
-        //     'receiver_id' => $receiver->id,
-        // ]);
+        $this->friendRequestId = $friendRequestId;
+        Log::info("FriendRequestSent constructor", [
+        'friendRequestId' => $friendRequestId,
+        'sender_id' => $sender->id,
+        'receiver_id' => $receiver->id,
+    ]);
+
     }
 
     /**
@@ -49,10 +52,11 @@ class FriendRequestSent implements ShouldBroadcast
     {
         $payload = [
             'sender' => [
+                'req' => $this->friendRequestId,
                 'id' => $this->sender->id,
                 'name' => $this->sender->name,
                 'username' => $this->sender->username,
-                'profile_pic' => $this->sender->profile_pic ?? 'https://example.com/default-pic.jpg',
+                'profile_pic' => $this->sender->profile_pic,
             ],
         ];
         Log::info("FriendRequestSent payload:", $payload);

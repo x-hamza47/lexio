@@ -11,38 +11,6 @@ export default function Main() {
     const [activeTab, setActiveTab] = useState(() => {
         return sessionStorage.getItem("usersTab") || "chats";
     });
-    // const { props } = usePage();
-    // const userId = props.auth.user.id;
-
-// useEffect(() => {
-//     if (!window.Echo) {
-//         console.error("Echo is not initialized!");
-//         return;
-//     }
-
-//     console.log("Authenticated user ID:", userId);
-//     console.log("Subscribing to private channel: messages." + userId);
-//     // const channel = window.Echo.private(`messages.${userId}`);
-//     const channel = window.Echo.channel("public-messages");
-
-//     channel
-//         .listen(".MessageSent", (e) => {
-//             console.log("📩 New message received:", e);
-//         })
-//         .subscribed(() => {
-//             console.log(
-//                 "Successfully subscribed to private channel: messages." + userId
-//             );
-//         })
-//         .error((error) => {
-//             console.error("Private channel subscription error:", error);
-//         });
-
-//     return () => {
-//         console.log("Unsubscribing from private channel: messages." + userId);
-//         channel.stopListening(".MessageSent");
-//     };
-// }, [userId]);
 
     useEffect(() => {
         sessionStorage.setItem("usersTab", activeTab);

@@ -45,6 +45,7 @@ Route::middleware(ValidUser::class)->group(function () {
         Route::get('/pending-requests', 'getPendingRequests')->name('pending.requests');
         Route::get('/suggested-users', 'getSuggestedUsers')->name('suggested.users');
         Route::post('/friend-request/{receiver}', 'sendRequest');
+        Route::post('/friend-request/{id}/handle', 'handleRequest');
     });
 });
 

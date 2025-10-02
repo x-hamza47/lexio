@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Events\FriendRequestSent;
+use App\Models\Friend;
 use App\Models\FriendRequest;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
@@ -36,7 +38,9 @@ class UserController extends Controller
     {
         $user = Auth::user();
 
-        $friendIds = $user->friends()->pluck('id')->all();
+        $friendIds = $user->friends()->map(function ($friend) use ($user) {
+            return $friend->user_id === $user->id ? $friend->friend_id : $friend->user_id;
+        })->all();
         $pendingSentIds = $user->sentFriendRequests()->pluck('to_user_id')->all();
         $pendingReceivedIds = $user->receivedFriendRequests()->pluck('from_user_id')->all();
 
@@ -56,7 +60,7 @@ class UserController extends Controller
         return response()->json([
             'suggestedUsers' => $suggestedUsers,
             'pendingSentIds' => $pendingSentIds,
-            'pendingReceivedIds' => $pendingReceivedIds, 
+            'pendingReceivedIds' => $pendingReceivedIds,
         ]);
     }
 
@@ -83,12 +87,43 @@ class UserController extends Controller
 
         ]);
 
-        broadcast(new FriendRequestSent($sender, $receiver))->toOthers();
+        broadcast(new FriendRequestSent($sender, $receiver, $friendRequest->id))->toOthers();
 
         return response()->json([
             'message' => 'Friend request sent!',
             'receiver' => $receiver->id,
             'request_id' => $friendRequest->id,
         ]);
+    }
+
+    public function handleRequest(Request $request, $id)
+    {
+        $request->validate(['action' => 'required|in:accept,reject']);
+
+        // return $request->all();
+        $friendRequest = FriendRequest::findOrFail($id);
+
+        if ($friendRequest->to_user_id !== Auth::id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if ($request->action === 'accept') {
+            Friend::create([
+                'user_id' => $friendRequest->to_user_id,
+                'friend_id' => $friendRequest->from_user_id,
+            ]);
+
+            $friendRequest->delete();
+
+            return response()->json(['message' => 'Friend request accepted']);
+        }
+
+        if ($request->action === 'reject') {
+            $friendRequest->delete();
+
+            return response()->json(['message' => 'Friend request rejected']);
+        }
+
+        return response()->json(['error' => 'Invalid action'], 400);
     }
 }

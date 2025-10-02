@@ -33,16 +33,16 @@ export default function Users({ activeTab, onTabChange }) {
         const channel = window.Echo.private(channelName);
 
         channel.listen(".FriendRequestSent", (e) => {
-            if (e.sender && e.sender.id) {
+            if (e.sender && e.sender.req) {
                 setPendingRequests((prev) => {
-                    if (prev.some((req) => req.sender.id === e.sender.id)) {
+                    if (prev.some((req) => req.id === e.sender.req)) {
                         console.log(
                             "Duplicate request ignored for sender:",
                             e.sender.id
                         );
                         return prev;
                     }
-                    return [{ id: `ws-${e.sender.id}`, sender: e.sender }, ...prev];
+                    return [{ id: e.sender.req, sender: e.sender }, ...prev];
                 });
 
                 setSuggestedUsers((prev) => {
@@ -98,6 +98,7 @@ export default function Users({ activeTab, onTabChange }) {
         };
     }, [nextCursor, loadingMore]);
 
+
     // ! Fetch Pending Request API
     const fetchPendingRequests = async () => {
         try {
@@ -149,22 +150,22 @@ export default function Users({ activeTab, onTabChange }) {
         }
     }
     return (
-        <div className="max-h-[88dvh] flex flex-col">
+        <div className="max-h-[88dvh] flex flex-col ">
             <UserHeader
                 activeTab={activeTab}
                 onTabChange={onTabChange}
-                onFetch={() => fetchUsersData()}
+            // onFetch={() => fetchUsersData()}
             />
-            <div className="users-list overflow-y-auto flex-1 mt-2">
+            <div className="users-list overflow-y-auto flex-1 mt-2 ">
                 {activeTab === "chats" &&
                     users.map((user, i) => <Chats key={i} data={user} />)}
                 {activeTab === "addFriends" && (
                     <>
-                        <div className="my-4">
+                        <div className="my-4 ">
                             <h3 className="text-white font-semibold font-sans px-2 ">
                                 Friend Requests
                             </h3>
-                            <AnimatePresence>
+                            <AnimatePresence mode="wait">
                                 {pendingRequests.length > 0 ? (
                                     pendingRequests.map((req) => (
                                         <motion.div
@@ -190,16 +191,28 @@ export default function Users({ activeTab, onTabChange }) {
                                                 data={req.sender}
                                                 type="pending"
                                                 requestId={req.id}
+                                                onHandleRequest={id =>
+                                                    setPendingRequests(prev => prev.filter(r => r.id !== id))
+                                                }
                                             />
                                         </motion.div>
                                     ))
                                 ) : (
-                                    <>
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        transition={{
+                                            duration: 0.3,
+                                            ease: "easeInOut",
+                                        }}
+                                        className="mt-3"
+                                    >
                                         <div className="text-gray-500 text-xs text-center px-2">
                                             No requests found.
                                         </div>
                                         <div className="mb-3 h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700 mt-4" />
-                                    </>
+                                    </motion.div>
                                 )}
                             </AnimatePresence>
                         </div>

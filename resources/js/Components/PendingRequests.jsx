@@ -1,15 +1,29 @@
 import VerifyBadge from "@/Components/ui/VerifyBadge";
 import { faCrown, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import axios from "axios";
 
-export default function PendingRequests({ data, type, requestId }) {
+export default function PendingRequests({ data, type, requestId, onHandleRequest }) {
     const randomDelay = `${Math.random() * 5}s`;
     const randomDuration = `${1.5 + Math.random() * 2}s`;
+
+    const handleRequest = async (action) => {
+        try {
+            let res = await axios.post(`/friend-request/${requestId}/handle`, {
+                action,
+            });
+            console.log(res.data.message);
+
+            if (onHandleRequest) onHandleRequest(requestId);
+        } catch (err) {
+            console.log(`Failed to ${action} request`, err);
+        }
+    }
 
     return (
 
         <div className="select-none">
-            <div className="chat-card relative flex items-center justify-between sharp-border py-3 pl-2 pr-4 mt-1 cursor-pointer ">
+            <div className=" relative flex items-center justify-between sharp-border py-3 pl-2 pr-4 mt-1 cursor-pointer ">
                 <span className="flex gap-4 select-none">
                     <img
                         src={
@@ -57,26 +71,27 @@ export default function PendingRequests({ data, type, requestId }) {
                     </div>
                 </span>
                 <div className="flex gap-2">
-                    <Button color="green-500">Accept</Button>
-                    <Button icon={faX} color="red-400"/>
+                    <Button color="green-500" onClick={() => handleRequest('accept')}>Accept</Button>
+                    <Button icon={faX} color="red-400" onClick={() => handleRequest('reject')} />
                 </div>
             </div>
         </div>
     );
 }
 
-function Button({ className, icon, children, color = "white" }) {
+function Button({ className, icon, children, color = "white", ...props }) {
     const isIconOnly = icon && !children;
 
     return (
         <button
+            {...props}
             className={`
                 text-sm text-${color} bg-glass font-sans font-semibold
                 transition duration-200 ease-in-out cursor-pointer
                 hover:bg-white/20 hover:shadow-xl active:scale-90 active:shadow-inner rounded-full
                 ${isIconOnly
-                    ? "w-8 h-8 flex items-center justify-center " 
-                    : "px-3 py-1 " 
+                    ? "w-8 h-8 flex items-center justify-center "
+                    : "px-3 py-1 "
                 }
                 ${className}
             `}
