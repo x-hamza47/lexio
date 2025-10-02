@@ -16,7 +16,7 @@ export default function SuggestedUser({ data, type, onRequestSent }) {
         try {
             setRequested(true);
             const res = await axios.post(`/friend-request/${data.id}`);
-            console.log("API response:", res.data);
+            // console.log("API response:", res.data);
         } catch (err) {
             console.error("Error sending friend request:", err);
             if (err.response?.status === 400 && onRequestSent) {

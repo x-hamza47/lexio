@@ -12,6 +12,8 @@ export default function Main() {
         return sessionStorage.getItem("usersTab") || "chats";
     });
 
+    const [pendingCount, setPendingCount] = useState(0);
+
     useEffect(() => {
         sessionStorage.setItem("usersTab", activeTab);
     }, [activeTab]);
@@ -23,12 +25,13 @@ export default function Main() {
                 <StarsBackground className="bg-[#030303] -z-40" />
             </div>
             <div className="p-5 w-full d-center max-h-dvh h-dvh ">
-                <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+                <Sidebar activeTab={activeTab} onTabChange={setActiveTab} pendingCount={pendingCount} />
                 <div className="lg:flex-1 h-full main p-5 flex gap-2 bg-white/5 backdrop-blur-xs lg:border-y lg:border-r border border-white/20 shadow-lg rounded-2xl lg:rounded-none lg:rounded-r-2xl overflow-y-hidden">
                     <div className="border-r border-white/20 px-1 select-none w-[400px]">
                         <Users
                             activeTab={activeTab}
                             onTabChange={setActiveTab}
+                            setPendingCount={setPendingCount}
                         />
                     </div>
                     <div className="flex-1 lg:block hidden">

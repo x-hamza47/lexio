@@ -13,7 +13,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('/register', 'registerPage')->name('register.show');
     Route::post('/register', 'register')->name('signup');
     Route::get('/login', 'loginPage')->name('login');
-    Route::get('/', 'loginPage');
+    Route::get('/', 'loginPage')->name('login.show');
     Route::post('/login', 'login')->name('user.login');
     Route::get('/pass-recover', 'passRecover')->name('pass.recover');
     Route::get('/check-username', 'checkUsername')->name('check.username')->middleware('throttle:15,1');

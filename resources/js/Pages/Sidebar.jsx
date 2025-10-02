@@ -3,8 +3,9 @@ import { faBars, faGear, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { useRef, useState } from "react";
 import useClickOutside from "@/Components/hook/useClickOutside";
 import { faComment } from "@fortawesome/free-regular-svg-icons";
+import { AnimatePresence, motion } from "framer-motion";
 
-export default function Sidebar({activeTab, onFetch, onTabChange}) {
+export default function Sidebar({ activeTab, onFetch, onTabChange, pendingCount }) {
     const [isOpen, setIsOpen] = useState(false);
     const sidebarRef = useRef(null);
 
@@ -17,9 +18,8 @@ export default function Sidebar({activeTab, onFetch, onTabChange}) {
         >
             <div className="bg-black/5  backdrop-blur-md border border-y h-full  border-white/20  transition-all duration-300 rounded-l-2xl">
                 <div
-                    className={`fixed top-0 left-0 h-full  backdrop-blur-md shadow-lg border-l border-white/20 transition-all duration-300  rounded-l-2xl overflow-hidden   flex flex-col items-start z-50 ${
-                        isOpen ? "w-52 bg-black/90" : "w-14 bg-transparent"
-                    }`}
+                    className={`fixed top-0 left-0 h-full  backdrop-blur-md shadow-lg border-l border-white/20 transition-all duration-300  rounded-l-2xl overflow-hidden   flex flex-col items-start z-50 ${isOpen ? "w-52 bg-black/90" : "w-14 bg-transparent"
+                        }`}
                 >
                     <ul className="w-full py-4 h-full flex items-start flex-col justify-between">
                         <div className="w-full">
@@ -35,51 +35,65 @@ export default function Sidebar({activeTab, onFetch, onTabChange}) {
                                 onClick={() => onTabChange("chats")}
                             >
                                 <span
-                                    className={`flex items-center w-full gap-4 px-3 py-2 rounded-md transition-all duration-200 hover:bg-white/10 hover:text-white text-white/80 ${
-                                        activeTab === "chats"
-                                            ? "text-white bg-white/20"
-                                            : "text-white/50"
-                                    }`}
+                                    className={`flex items-center w-full gap-4 px-3 py-2 rounded-md transition-all duration-200 hover:bg-white/10 hover:text-white text-white/80 ${activeTab === "chats"
+                                        ? "text-white bg-white/20"
+                                        : "text-white/50"
+                                        }`}
                                 >
                                     <FontAwesomeIcon
                                         icon={faComment}
                                         className="text-lg "
                                     />
                                     <span
-                                        className={`overflow-hidden whitespace-nowrap transition-all duration-300 ml-5 ${
-                                            isOpen
-                                                ? "opacity-100  "
-                                                : "opacity-0 "
-                                        }`}
+                                        className={`overflow-hidden whitespace-nowrap transition-all duration-300 ml-5 ${isOpen
+                                            ? "opacity-100  "
+                                            : "opacity-0 "
+                                            }`}
                                     >
                                         Chats
                                     </span>
                                 </span>
                             </li>
+    
                             <li
-                                className={`w-full px-1.5 py-2 cursor-pointer transition-colors d-center text-white/50 `}
+                                className={` w-full px-1.5 py-2 cursor-pointer transition-colors d-center text-white/50 `}
                                 onClick={() => onTabChange("addFriends")}
                             >
-                                <span
-                                    className={`flex items-center w-full gap-4 px-3 py-2 rounded-md transition-all duration-200 hover:bg-white/10 hover:text-white text-white/80 ${
-                                        activeTab === "addFriends"
-                                            ? "text-white bg-white/20"
-                                            : "text-white/50"
-                                    }`}
-                                >
-                                    <FontAwesomeIcon
-                                        icon={faUserPlus}
-                                        className="text-lg "
-                                    />
-                                    <span
-                                        className={`overflow-hidden whitespace-nowrap transition-all duration-300 ml-5 ${
-                                            isOpen
-                                                ? "opacity-100  "
-                                                : "opacity-0 "
-                                        }`}
-                                    >
+                                <span className={`relative flex items-center w-full gap-4 px-3 py-2 rounded-md transition-all duration-200 hover:bg-white/10 hover:text-white text-white/80 ${activeTab === "addFriends"
+                                    ? "text-white bg-white/20"
+                                    : "text-white/50"
+                                    }`}>
+                                    <FontAwesomeIcon icon={faUserPlus} className="text-lg " />
+
+                                    <AnimatePresence>
+
+                                    {/* Dot on icon */}
+                                    {pendingCount > 0 && (
+                                        <motion.span 
+                                            initial={{ opacity: 0, scale: 0.1 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.1 }}
+                                            transition={{
+                                                scale: {
+                                                    type: "spring",
+                                                    stiffness: 120,
+                                                    damping: 2,
+                                                    mass: 0.5,
+                                                    bounce: 0.4,
+                                                },
+                                                opacity: {
+                                                    duration: 0.3,
+                                                    ease: "easeInOut",
+                                                },
+                                            }}
+                                        className={`absolute flex items-center justify-center leading-0  text-[10px] w-4 h-4 bg-glass bg-red-600/50 rounded-full transition-all ${!isOpen ? 'top-2 left-0' : 'top-1/2 right-4 -translate-y-1/2'}`}>{pendingCount}</motion.span>
+                                    )}
+                                    </AnimatePresence>
+
+                                    <span className={`overflow-hidden whitespace-nowrap transition-all duration-300 ml-5 ${isOpen? "opacity-100  ": "opacity-0 "}`}>
                                         Add Friend
                                     </span>
+
                                 </span>
                             </li>
                         </div>
@@ -88,22 +102,20 @@ export default function Sidebar({activeTab, onFetch, onTabChange}) {
                                 className={`w-full px-1.5 py-2 cursor-pointer transition-colors d-center text-white/50 `}
                             >
                                 <span
-                                    className={`flex items-center w-full gap-4 px-3 py-2 rounded-md transition-all duration-200 hover:bg-white/10 hover:text-white text-white/80 ${
-                                        activeTab === "settings"
-                                            ? "text-white bg-white/20"
-                                            : "text-white/50"
-                                    }`}
+                                    className={`flex items-center w-full gap-4 px-3 py-2 rounded-md transition-all duration-200 hover:bg-white/10 hover:text-white text-white/80 ${activeTab === "settings"
+                                        ? "text-white bg-white/20"
+                                        : "text-white/50"
+                                        }`}
                                 >
                                     <FontAwesomeIcon
                                         icon={faGear}
                                         className="text-lg "
                                     />
                                     <span
-                                        className={`overflow-hidden whitespace-nowrap transition-all duration-300 ml-5 ${
-                                            isOpen
-                                                ? "opacity-100  "
-                                                : "opacity-0 "
-                                        }`}
+                                        className={`overflow-hidden whitespace-nowrap transition-all duration-300 ml-5 ${isOpen
+                                            ? "opacity-100  "
+                                            : "opacity-0 "
+                                            }`}
                                     >
                                         Settings
                                     </span>
@@ -113,11 +125,10 @@ export default function Sidebar({activeTab, onFetch, onTabChange}) {
                                 className={`w-full px-1.5 py-2 cursor-pointer transition-colors d-center text-white/50 `}
                             >
                                 <span
-                                    className={`w-full gap-3 flex items-center rounded-md transition-all duration-100 hover:bg-white/20 hover:text-white px-1.5 py-2 ${
-                                        activeTab === "profile"
-                                            ? "text-white bg-white/20"
-                                            : "text-white/50"
-                                    }`}
+                                    className={`w-full gap-3 flex items-center rounded-md transition-all duration-100 hover:bg-white/20 hover:text-white px-1.5 py-2 ${activeTab === "profile"
+                                        ? "text-white bg-white/20"
+                                        : "text-white/50"
+                                        }`}
                                 >
                                     <div className="w-8 h-8 rounded-full overflow-hidden shrink-0">
                                         <img
@@ -127,11 +138,10 @@ export default function Sidebar({activeTab, onFetch, onTabChange}) {
                                         />
                                     </div>
                                     <span
-                                        className={`overflow-hidden whitespace-nowrap transition-all duration-300 ml-5 ${
-                                            isOpen
-                                                ? "opacity-100  w-auto"
-                                                : "opacity-0 w-0"
-                                        }`}
+                                        className={`overflow-hidden whitespace-nowrap transition-all duration-300 ml-5 ${isOpen
+                                            ? "opacity-100  w-auto"
+                                            : "opacity-0 w-0"
+                                            }`}
                                     >
                                         Profile
                                     </span>

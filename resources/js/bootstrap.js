@@ -33,10 +33,10 @@ window.Echo = new Echo({
     },
 });
 
-console.log("Echo initialized:", window.Echo);
-window.Echo.connector.pusher.connection.bind("connected", () => {
-    console.log("WebSocket connected!");
-});
-window.Echo.connector.pusher.connection.bind("error", (error) => {
-    console.error("WebSocket error:", error);
-});
+// console.log("Echo initialized:", window.Echo);
+// window.Echo.connector.pusher.connection.bind("connected", () => {
+//     console.log("WebSocket connected!");
+// });
+// window.Echo.connector.pusher.connection.bind("error", (error) => {
+//     console.error("WebSocket error:", error);
+// });

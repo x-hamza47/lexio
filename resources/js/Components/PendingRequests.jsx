@@ -9,10 +9,8 @@ export default function PendingRequests({ data, type, requestId, onHandleRequest
 
     const handleRequest = async (action) => {
         try {
-            let res = await axios.post(`/friend-request/${requestId}/handle`, {
-                action,
-            });
-            console.log(res.data.message);
+            await axios.post(`/friend-request/${requestId}/handle`, {action});
+            // console.log(res.data.message);
 
             if (onHandleRequest) onHandleRequest(requestId);
         } catch (err) {

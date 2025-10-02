@@ -10,7 +10,7 @@ import { LoadingMessages } from "@/Data/LoadingMessages";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePage } from "@inertiajs/react";
 
-export default function Users({ activeTab, onTabChange }) {
+export default function Users({ activeTab, onTabChange, setPendingCount }) {
     const { auth } = usePage().props;
     const [loadingMessage, setLoadingMessage] = useState("");
     const [loadingMore, setLoadingMore] = useState(true);
@@ -58,12 +58,12 @@ export default function Users({ activeTab, onTabChange }) {
             console.error("WebSocket error on channel", channelName, err);
         });
 
-        channel.subscribed(() => {
-            console.log("Successfully subscribed to", channelName);
-        });
+        // channel.subscribed(() => {
+        //     console.log("Successfully subscribed to", channelName);
+        // });
 
         return () => {
-            console.log("Cleaning up WebSocket listener for", channelName);
+            // console.log("Cleaning up WebSocket listener for", channelName);
             window.Echo.leave(channelName);
         };
     }, [auth?.user?.id]);
@@ -149,6 +149,12 @@ export default function Users({ activeTab, onTabChange }) {
             setLoadingMore(false);
         }
     }
+
+    useEffect(() => {
+        if (setPendingCount) {
+            setPendingCount(pendingRequests.length);
+        }
+    },[pendingRequests, setPendingCount]);
     return (
         <div className="max-h-[88dvh] flex flex-col ">
             <UserHeader
