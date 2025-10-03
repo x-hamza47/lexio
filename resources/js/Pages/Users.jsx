@@ -1,6 +1,5 @@
 import UserHeader from "@/Components/UserHeader";
 import Chats from "@/Components/Chats";
-import { users } from "@/Data/users";
 import PendingRequests from "@/Components/PendingRequests";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
@@ -22,6 +21,16 @@ export default function Users({ activeTab, onTabChange, setPendingCount }) {
     const [suggestedUsers, setSuggestedUsers] = useState([]);
     const [nextCursor, setNextCursor] = useState(null);
 
+    const [chats, setChats] = useState([]);
+
+    const [friends, setFriends] = useState([]);
+
+    useEffect(() => {
+        axios.get('/friends')
+        .then(res =>{ setFriends(res.data.friends); console.log(res.data, " friends data fetch successful")})
+        .catch(err => console.log("Error in friends list fetch" + err));
+    },[]);
+
     // ! Web Socket for Pending Requests
     useEffect(() => {
         if (!auth?.user?.id || !window.Echo) {
@@ -36,10 +45,7 @@ export default function Users({ activeTab, onTabChange, setPendingCount }) {
             if (e.sender && e.sender.req) {
                 setPendingRequests((prev) => {
                     if (prev.some((req) => req.id === e.sender.req)) {
-                        console.log(
-                            "Duplicate request ignored for sender:",
-                            e.sender.id
-                        );
+                        console.log("Duplicate request ignored for sender:", e.sender.id);
                         return prev;
                     }
                     return [{ id: e.sender.req, sender: e.sender }, ...prev];
@@ -58,14 +64,7 @@ export default function Users({ activeTab, onTabChange, setPendingCount }) {
             console.error("WebSocket error on channel", channelName, err);
         });
 
-        // channel.subscribed(() => {
-        //     console.log("Successfully subscribed to", channelName);
-        // });
-
-        return () => {
-            // console.log("Cleaning up WebSocket listener for", channelName);
-            window.Echo.leave(channelName);
-        };
+        return () => { window.Echo.leave(channelName); };
     }, [auth?.user?.id]);
 
     // ! Initial Fetch when ActiveTab is Add Friends
@@ -74,6 +73,9 @@ export default function Users({ activeTab, onTabChange, setPendingCount }) {
             setLoadedOnce(true);
             fetchPendingRequests();
             fetchSuggestedUsers();
+        }
+        if (activeTab === "chats") {
+            fetchChats();
         }
     }, [activeTab, loadedOnce]);
 
@@ -97,6 +99,20 @@ export default function Users({ activeTab, onTabChange, setPendingCount }) {
             if (loaderRef.current) observer.unobserve(loaderRef.current);
         };
     }, [nextCursor, loadingMore]);
+
+    // ! FETCH CHATS
+    const fetchChats = async () => {
+        try {
+            const res = await axios.get('/chats');
+            if (res.data.chats) {
+                setChats(res.data.chats);
+                console.log(res.data);
+            }
+
+        } catch (err) {
+            console.log("chat fetch err" + err);
+        }
+    }
 
 
     // ! Fetch Pending Request API
@@ -154,17 +170,23 @@ export default function Users({ activeTab, onTabChange, setPendingCount }) {
         if (setPendingCount) {
             setPendingCount(pendingRequests.length);
         }
-    },[pendingRequests, setPendingCount]);
+    }, [pendingRequests, setPendingCount]);
     return (
         <div className="max-h-[88dvh] flex flex-col ">
-            <UserHeader
-                activeTab={activeTab}
-                onTabChange={onTabChange}
-            // onFetch={() => fetchUsersData()}
-            />
+            <UserHeader activeTab={activeTab} onTabChange={onTabChange} friends={friends}/>
             <div className="users-list overflow-y-auto flex-1 mt-2 ">
-                {activeTab === "chats" &&
-                    users.map((user, i) => <Chats key={i} data={user} />)}
+                {activeTab === "chats" && (
+                    chats.length === 0 ? (
+                        <div className="text-gray-500 text-xs text-center px-2 mt-4">
+                            No chats yet. Start a conversation with your friends!
+                             <div className="mb-3 h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700 mt-4" />
+                        </div>
+                    ) : (
+                        chats.map((chat, i) => (
+                            <Chats key={i} data={chat} />
+                        ))
+                    )
+                )}
                 {activeTab === "addFriends" && (
                     <>
                         <div className="my-4 ">

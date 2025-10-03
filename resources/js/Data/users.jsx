@@ -1,4 +1,4 @@
-export let users = [
+export let Users = [
     {
         name: "Olympie Toop",
         profile: "https://robohash.org/estodittotam.jpg?size=50x50&set=set1",

@@ -16,6 +16,7 @@ import { useForm } from "@inertiajs/react";
 import debounce from "lodash.debounce";
 import axios from "axios";
 import { HoverBorderGradient } from "@/Components/ui/hover-border-gradient";
+import { generateKeyPair, encryptPrivateKey } from "@/Components/utils/crypto";
 
 export default function SignUp({ onSwitch }) {
     const { data, setData, post, processing, errors, clearErrors } = useForm({
@@ -25,6 +26,8 @@ export default function SignUp({ onSwitch }) {
         password: "",
         password_confirmation: "",
         profile_pic: "",
+        public_key: "",
+        private_key: "",
     });
 
     const [usernameAvailable, setUsernameAvailable] = useState(null);
@@ -35,15 +38,28 @@ export default function SignUp({ onSwitch }) {
     );
     const [confirmError, setConfirmError] = useState("");
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
-        post("/register", {
-            preserveScroll: true,
-            // onSuccess: () => {
-            //     onSwitch('otp');
-            // }
+
+        const {privateKey, publicKey } = await generateKeyPair(data.name, data.email);
+        const privateEncryptedKey = encryptPrivateKey(privateKey, data.password);
+        
+        localStorage.setItem("privateKey", privateKey);
+
+        setData({
+            ...data,
+            public_key: publicKey,
+            private_key: privateEncryptedKey, 
         });
+        
     }
+    useEffect(() => {
+        if (data.public_key && data.private_key) {
+            post("/register", {
+                preserveScroll: true,
+            });
+        }
+    }, [data.public_key, data.private_key, post]);
 
     const handleConfirmError = (e) => {
         let value = e.target.value;
@@ -99,8 +115,8 @@ export default function SignUp({ onSwitch }) {
     }, [data.username, checkUsernameAPI]);
 
     return (
-        <div className="text-white d-center py-9 select-none">
-            <div className="w-lg px-8 py-6 bg-black/5  backdrop-blur-md border border-white/20 shadow-lg rounded-2xl">
+        <div className="text-white d-center py-4 select-none">
+            <div className="w-2xl px-8 py-6 bg-black/5  backdrop-blur-md border border-white/20 shadow-lg rounded-2xl">
                 <h2 className="text-center text-2xl font-bold mb-1">Sign Up</h2>
                 <p className="text-sm text-gray-400 text-center mb-3">
                     No account? No worries, join us in seconds.
@@ -109,10 +125,9 @@ export default function SignUp({ onSwitch }) {
                 <form
                     onSubmit={handleSubmit}
                     encType="multipart/form-data"
-                    className="w-full flex flex-col items-center gap-4"
+                    className="w-full flex flex-col  gap-4"
                 >
-                    {/* Full Name */}
-                    <div className="profile-wrapper w-24 h-24 relative rounded-full bg-black/50 backdrop-blur-md shadow-md p-2 box-content border border-white/30">
+                    <div className="profile-wrapper self-center w-24 h-24 relative rounded-full bg-black/50 backdrop-blur-md shadow-md p-2 box-content border border-white/30">
                         <img
                             src={preview}
                             id="preview"
@@ -135,72 +150,75 @@ export default function SignUp({ onSwitch }) {
                         className="hidden"
                         onChange={handleFileChange}
                     />
-                    <div className="w-full">
-                        <label htmlFor="name" className="text-sm">
-                            Full Name
-                        </label>
-                        <div className="inp-bx rounded-md h-11 mt-2 group ">
-                            <FontAwesomeIcon
-                                icon={faUserAlt}
-                                className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-white/50 group-focus-within:text-white transition ease-in"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Enter your full name"
-                                id="name"
-                                value={data.name}
-                                onChange={(e) =>
-                                    setData("name", e.target.value)
-                                }
-                                autoComplete="off"
-                                className="h-full pl-9 pr-2 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
-                            />
-                        </div>
-                        {errors.name && <ErrorMessage message={errors.name} />}
-                    </div>
-                    {/* Username */}
-                    <div className="w-full">
-                        <label htmlFor="username" className="text-sm">
-                            Username
-                        </label>
-                        <div className="inp-bx rounded-md h-11 mt-2 group">
-                            <FontAwesomeIcon
-                                icon={faUserAlt}
-                                className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-white/50 group-focus-within:text-white transition ease-in"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Choose a unique username"
-                                id="username"
-                                value={data.username}
-                                onChange={(e) => {
-                                    const value = e.target.value;
-                                    if (/^[A-Za-z0-9_.-]*$/.test(value)) {
-                                        setData("username", value);
-                                        clearErrors("username");
+                    <div className="flex gap-2">
+
+                        <div className="w-full">
+                            <label htmlFor="name" className="text-sm">
+                                Full Name
+                            </label>
+                            <div className="inp-bx rounded-md h-11 mt-2 group ">
+                                <FontAwesomeIcon
+                                    icon={faUserAlt}
+                                    className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-white/50 group-focus-within:text-white transition ease-in"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Enter your full name"
+                                    id="name"
+                                    value={data.name}
+                                    onChange={(e) =>
+                                        setData("name", e.target.value)
                                     }
-                                }}
-                                autoComplete="off"
-                                className="h-full pl-9 pr-2 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
-                            />
+                                    autoComplete="off"
+                                    className="h-full pl-9 pr-2 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
+                                />
+                            </div>
+                            {errors.name && <ErrorMessage message={errors.name} />}
                         </div>
-                        {errors.username && !usernameAvailable && (
-                            <ErrorMessage message={errors.username} />
-                        )}
+                        {/* Username */}
+                        <div className="w-full">
+                            <label htmlFor="username" className="text-sm">
+                                Username
+                            </label>
+                            <div className="inp-bx rounded-md h-11 mt-2 group">
+                                <FontAwesomeIcon
+                                    icon={faUserAlt}
+                                    className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-white/50 group-focus-within:text-white transition ease-in"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Choose a unique username"
+                                    id="username"
+                                    value={data.username}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (/^[A-Za-z0-9_.-]*$/.test(value)) {
+                                            setData("username", value);
+                                            clearErrors("username");
+                                        }
+                                    }}
+                                    autoComplete="off"
+                                    className="h-full pl-9 pr-2 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
+                                />
+                            </div>
+                            {errors.username && !usernameAvailable && (
+                                <ErrorMessage message={errors.username} />
+                            )}
 
-                        {usernameAvailable === true && (
-                            <span className="text-xs text-green-400">
-                                <FontAwesomeIcon icon={faCheckCircle} />{" "}
-                                Username is available
-                            </span>
-                        )}
+                            {usernameAvailable === true && (
+                                <span className="text-xs text-green-400">
+                                    <FontAwesomeIcon icon={faCheckCircle} />{" "}
+                                    Username is available
+                                </span>
+                            )}
 
-                        {usernameAvailable === false && (
-                            <span className="text-xs text-amber-500">
-                                <FontAwesomeIcon icon={faWarning} /> Username
-                                already taken
-                            </span>
-                        )}
+                            {usernameAvailable === false && (
+                                <span className="text-xs text-amber-500">
+                                    <FontAwesomeIcon icon={faWarning} /> Username
+                                    already taken
+                                </span>
+                            )}
+                        </div>
                     </div>
                     {/* Email Address */}
                     <div className="w-full">
@@ -230,67 +248,70 @@ export default function SignUp({ onSwitch }) {
                             )}
                         </span>
                     </div>
-                    {/* Password */}
-                    <div className="w-full">
-                        <label htmlFor="password" className="text-sm">
-                            Password
-                        </label>
-                        <div className="inp-bx rounded-md h-11 mt-2 group">
-                            <FontAwesomeIcon
-                                icon={faLock}
-                                className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-white/50 group-focus-within:text-white transition ease-in"
-                            />
-                            <input
-                                type={showPass ? "text" : "password"}
-                                placeholder="Create a strong password"
-                                id="password"
-                                value={data.password}
-                                onChange={(e) =>
-                                    setData("password", e.target.value)
-                                }
-                                autoComplete="off"
-                                className="h-full px-9 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
-                            />
-                            <FontAwesomeIcon
-                                icon={showPass ? faEyeSlash : faEye}
-                                className="absolute text-whtie/70 top-1/2 right-4 text-sm -translate-y-1/2 cursor-pointer"
-                                onClick={() => setShowPass(!showPass)}
-                            />
+                    <div className="flex gap-2">
+
+                        {/* Password */}
+                        <div className="w-full">
+                            <label htmlFor="password" className="text-sm">
+                                Password
+                            </label>
+                            <div className="inp-bx rounded-md h-11 mt-2 group">
+                                <FontAwesomeIcon
+                                    icon={faLock}
+                                    className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-white/50 group-focus-within:text-white transition ease-in"
+                                />
+                                <input
+                                    type={showPass ? "text" : "password"}
+                                    placeholder="Create a strong password"
+                                    id="password"
+                                    value={data.password}
+                                    onChange={(e) =>
+                                        setData("password", e.target.value)
+                                    }
+                                    autoComplete="off"
+                                    className="h-full px-9 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
+                                />
+                                <FontAwesomeIcon
+                                    icon={showPass ? faEyeSlash : faEye}
+                                    className="absolute text-whtie/70 top-1/2 right-4 text-sm -translate-y-1/2 cursor-pointer"
+                                    onClick={() => setShowPass(!showPass)}
+                                />
+                            </div>
+                            {errors.password && (
+                                <ErrorMessage message={errors.password} />
+                            )}
                         </div>
-                        {errors.password && (
-                            <ErrorMessage message={errors.password} />
-                        )}
-                    </div>
-                    {/* Password */}
-                    <div className="w-full">
-                        <label htmlFor="confirm_password" className="text-sm">
-                            Confirm Password
-                        </label>
-                        <div className="inp-bx rounded-md h-11 mt-2 group">
-                            <FontAwesomeIcon
-                                icon={faLockOpen}
-                                className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-white/50 group-focus-within:text-white transition ease-in"
-                            />
-                            <input
-                                type={showConfirmPass ? "text" : "password"}
-                                placeholder="Re-enter your password"
-                                id="confirm_password"
-                                value={data.password_confirmation}
-                                onChange={handleConfirmError}
-                                autoComplete="off"
-                                className="h-full px-9 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
-                            />
-                            <FontAwesomeIcon
-                                icon={showConfirmPass ? faEyeSlash : faEye}
-                                className="absolute text-whtie/70 top-1/2 right-4 text-sm -translate-y-1/2 cursor-pointer"
-                                onClick={() =>
-                                    setShowConfirmPass(!showConfirmPass)
-                                }
-                            />
+                        {/* Password */}
+                        <div className="w-full">
+                            <label htmlFor="confirm_password" className="text-sm">
+                                Confirm Password
+                            </label>
+                            <div className="inp-bx rounded-md h-11 mt-2 group">
+                                <FontAwesomeIcon
+                                    icon={faLockOpen}
+                                    className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-white/50 group-focus-within:text-white transition ease-in"
+                                />
+                                <input
+                                    type={showConfirmPass ? "text" : "password"}
+                                    placeholder="Re-enter your password"
+                                    id="confirm_password"
+                                    value={data.password_confirmation}
+                                    onChange={handleConfirmError}
+                                    autoComplete="off"
+                                    className="h-full px-9 text-sm placeholder:text-white/50 w-full border-b border-b-white/50 outline-none rounded-md bg-white/5 hover:bg-white/20 focus:bg-black/40 transition ease-in"
+                                />
+                                <FontAwesomeIcon
+                                    icon={showConfirmPass ? faEyeSlash : faEye}
+                                    className="absolute text-whtie/70 top-1/2 right-4 text-sm -translate-y-1/2 cursor-pointer"
+                                    onClick={() =>
+                                        setShowConfirmPass(!showConfirmPass)
+                                    }
+                                />
+                            </div>
+                            {confirmError && (
+                                <ErrorMessage message={confirmError} />
+                            )}
                         </div>
-                        {confirmError && (
-                            <ErrorMessage message={confirmError} />
-                        )}
                     </div>
                     <div className="w-full mt-3">
                         <button
@@ -314,7 +335,7 @@ export default function SignUp({ onSwitch }) {
                         </span>
                     </div>
                     <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700" />
-                    or
+                   <small className="self-center">or</small>
                 </form>
                 <HoverBorderGradient
                     onClick={() => (window.location.href = "/auth/google")}

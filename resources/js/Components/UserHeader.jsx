@@ -3,8 +3,9 @@ import Dropdown from "./ui/Dropdown";
 import { faSearch, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { usePage } from "@inertiajs/react";
+import FriendList from "./FriendList";
 
-export default function UserHeader({activeTab, onFetch, onTabChange}) {
+export default function UserHeader({activeTab, onFetch, onTabChange, friends}) {
     const [search, setSearch] = useState("");
     const {auth} = usePage().props;
 
@@ -29,7 +30,7 @@ export default function UserHeader({activeTab, onFetch, onTabChange}) {
                                 <p></p>
                             </div>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 md:hidden">
                             <button
                                 className={`d-center w-8 h-8 rounded-full text-white bg-glass hover:bg-white/20 transition duration-200 ease-in-out ${
                                     activeTab === "addFriends"
@@ -47,6 +48,21 @@ export default function UserHeader({activeTab, onFetch, onTabChange}) {
                                 />
                             </button>
                             <Dropdown />
+                        </div>
+                        <div className="md:flex gap-2 hidden">
+                            {/* <button
+                                className={`d-center w-8 h-8 rounded-full text-white bg-glass hover:bg-white/20 transition duration-200 ease-in-out`}
+                                onClick={() => {
+                                    // onFetch();
+                                    onTabChange("addFriends");
+                                }}
+                            >
+                                <FontAwesomeIcon
+                                    icon={faUserPlus}
+                                    className="text-sm p-2 rounded-full"
+                                />
+                            </button> */}
+                            <FriendList friends={friends}/>
                         </div>
                     </header>
 

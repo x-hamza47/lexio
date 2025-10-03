@@ -17,7 +17,7 @@ class ValidUser
     public function handle(Request $request, Closure $next): Response
     {
         if (!Auth::check() || !Auth::user()->email_verified) {
-            return redirect()->route('login');
+            return redirect()->route('login.show');
         }
 
         return $next($request);

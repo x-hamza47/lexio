@@ -1,12 +1,14 @@
 <?php
 
+use Illuminate\Http\Request;
+use App\Http\Middleware\ValidUser;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\FriendController;
+use App\Http\Controllers\Auth\OtpController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\GoogleController;
-use App\Http\Controllers\Auth\OtpController;
-use App\Http\Controllers\UserController;
-use App\Http\Middleware\ValidUser;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 
 // INFO: AUTHENTICATION CONTROLLER ROUTES
 Route::controller(AuthController::class)->group(function () {
@@ -20,6 +22,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/logout', 'logout')->name('user.logout');
     Route::post('/resend-otp', 'resendOtp')->name('resend.otp');
     Route::post('/forgot-password', 'forgotPassword')->name('password.email');
+    Route::post('/save-user-keys',  'saveKeys');
 
 });
 
@@ -49,4 +52,7 @@ Route::middleware(ValidUser::class)->group(function () {
     });
 });
 
-// ! FRIENDS ROUTEs
+Route::get('/chats',[ChatController::class, 'index'])->name('chat.index');
+
+Route::get('/friends', [FriendController::class, 'getFriends'])->name('friends.list');
+

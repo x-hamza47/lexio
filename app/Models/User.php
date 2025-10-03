@@ -27,6 +27,8 @@ class User extends Authenticatable
         'profile_pic',
         'is_verified',
         'is_premium',
+        'public_key',
+        'private_key_encrypted',
     ];
 
     /**
@@ -79,5 +81,21 @@ class User extends Authenticatable
     public function friends()
     {
         return $this->friendsOfMine->merge($this->friendsOf);
+    }
+
+    // ! Message Relations
+    public function messagesSent()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    public function messagesReceived()
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
+
+    public function messages()
+    {
+        return $this->messagesSent->merge($this->messagesReceived);
     }
 }

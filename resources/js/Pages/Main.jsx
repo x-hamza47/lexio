@@ -5,9 +5,13 @@ import { StarsBackground } from "@/Components/ui/stars-background";
 import Sidebar from "./Sidebar";
 import { useEffect, useState } from "react";
 import "../bootstrap";
-// import { usePage } from "@inertiajs/react";
+import { usePage } from "@inertiajs/react";
+import { encryptPrivateKey, generateKeyPair } from "../Components/utils/crypto";
+import axios from "axios";
 
 export default function Main() {
+    const { auth } = usePage().props;
+    
     const [activeTab, setActiveTab] = useState(() => {
         return sessionStorage.getItem("usersTab") || "chats";
     });
@@ -17,6 +21,30 @@ export default function Main() {
     useEffect(() => {
         sessionStorage.setItem("usersTab", activeTab);
     }, [activeTab]);
+
+    useEffect(() => {
+
+        if (auth.user && (!auth.user.public_key || !auth.user.private_key_encrypted)) {
+            (async () => {
+                try {
+                    const { privateKey, publicKey } = await generateKeyPair(auth.user.name, auth.user.email);
+
+                    const password = crypto.randomUUID();
+                    const privateEncryptedKey = encryptPrivateKey(privateKey, password);
+
+                    await axios.post("/save-user-keys", {
+                        user_id: auth.user.id,
+                        public_key: publicKey,
+                        private_key_encrypted: privateEncryptedKey,
+                    });
+
+                    console.log("Keys generated and saved for Google user:", auth.user.email);
+                } catch (err) {
+                    console.error("Failed to generate/save keys:", err);
+                }
+            })();
+        }
+    }, [auth.user]);
 
     return (
         <>

@@ -23,6 +23,8 @@ return new class extends Migration
             $table->boolean('is_verified')->default(false);
             $table->boolean('is_premium')->default(false);
             $table->boolean('is_online')->default(false);
+            $table->longText('public_key')->nullable();
+            $table->longText('private_key_encrypted')->nullable(); 
             $table->timestamps();
         });
     }

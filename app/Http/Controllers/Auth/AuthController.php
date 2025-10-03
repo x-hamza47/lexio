@@ -28,7 +28,6 @@ class AuthController extends Controller
     public function register(RegisterRequest $request)
     {
         sleep(1);
-
         $profilePic = null;
 
         if ($request->hasFile('profile_pic')) {
@@ -46,6 +45,8 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => $request->password,
             'profile_pic' => $profilePic,
+            'public_key' => $request->public_key,
+            'private_key_encrypted' => $request->private_key,
         ]);
 
         $this->sendOtp($user);
@@ -222,5 +223,25 @@ class AuthController extends Controller
         DB::table('password_resets')->where('email', $request->email)->delete();
 
         return redirect()->route('login')->with('success', 'Your password has been reset successfully!');
+    }
+
+    public function saveKeys(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'public_key' => 'required|string',
+            'private_key_encrypted' => 'required|string',
+        ]);
+
+        $user = User::find($request->user_id);
+
+        if (! $user->public_key && ! $user->private_key_encrypted) {
+            $user->public_key = $request->public_key;
+            $user->private_key_encrypted = $request->private_key_encrypted;
+            $user->save();
+        }
+
+        return response()->json(['message' => 'Keys saved successfully']);
+
     }
 }
